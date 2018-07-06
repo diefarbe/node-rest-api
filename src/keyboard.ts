@@ -1,9 +1,9 @@
 
-import { Keyboard, KeyInfo, KeyState } from "das";
+import { Keyboard, KeyInfo, KeyState } from "das/dist";
 var usbDetect = require('usb-detection');
 import { StateInfo, ChannelInfo, StateChangeRequest } from "./state";
-import { KeyModel } from "../node_modules/das/dist/internal/models/key-model";
-import { ChannelState } from "../node_modules/das/dist/channel-state";
+import { KeyModel } from "das/dist/internal/models";
+import { ChannelState } from "das/dist/channel-state";
 
 export class APIKeyboard {
 
