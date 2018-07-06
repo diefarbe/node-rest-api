@@ -1,0 +1,25 @@
+{
+  "name": "sich-ausruhen",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "ts-node --project tsconfig.json ./dist/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@feathersjs/express": "^1.2.3",
+    "@feathersjs/feathers": "^3.1.7",
+    "@types/feathersjs__express": "^1.1.4",
+    "@types/feathersjs__feathers": "^3.0.4",
+    "das": "../node-lib/",
+    "usb-detection": "^3.1.0"
+  },
+  "devDependencies": {
+    "ts-node": "^7.0.0",
+    "typescript": "^2.9.2"
+  }
+}
