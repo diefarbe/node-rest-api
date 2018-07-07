@@ -56,11 +56,12 @@ requirePath({
   include: ["*.js", "*/index.js"]
 })
   .then((modules: { [key: string]: SignalProviderPlugin }) => {
-    for (let key of Object.keys(modules)) {
-      let plugin = modules[key];
-      console.log(plugin.signalName);
-      console.log(plugin.signalValue());
-    }
+    setInterval(() => {
+      for (let key of Object.keys(modules)) {
+        let plugin = modules[key];
+        console.log(plugin.signalName + ":" + plugin.signalValue());
+      }
+    }, 1000);
   })
   .catch((errors: any) => {
     throw errors;
