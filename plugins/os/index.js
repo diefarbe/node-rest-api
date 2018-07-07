@@ -44,7 +44,7 @@ module.exports = {
     }, {
         name: "memory_utilization",
         getValue: () => {
-            return 1 - os.freemem() / os.totalmem();
+            return Math.floor((1 - os.freemem() / os.totalmem()) * 100);
         }
     }]
 };
