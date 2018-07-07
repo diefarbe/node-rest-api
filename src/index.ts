@@ -1,8 +1,9 @@
-import { APIKeyboard } from "./keyboard";
-import { StateChangeRequest } from "./state";
+import {APIKeyboard} from "./keyboard";
+import {StateChangeRequest} from "./state";
 
 const feathers = require('@feathersjs/feathers');
 const express = require('@feathersjs/express');
+const requirePath = require("require-path");
 
 const app = express(feathers());
 
@@ -10,7 +11,7 @@ const app = express(feathers());
 app.use(express.json())
 
 // Turn on URL-encoded body parsing for REST services
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({extended: true}));
 
 // Set up REST transport using Express
 app.configure(express.rest());
@@ -49,3 +50,16 @@ app.use('keys', {
 const server = app.listen(3030);
 
 server.on('listening', () => console.log('Feathers REST API started at http://localhost:3030'));
+
+requirePath({
+  path: "plugins",
+  include: ["*.js", "*/index.js"]
+})
+  .then((modules: { [key: string]: Function }) => {
+    for (let key of Object.keys(modules)) {
+      modules[key]();
+    } 
+  })
+  .catch((errors: any) => {
+    throw errors;
+  });
