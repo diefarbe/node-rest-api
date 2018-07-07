@@ -1,6 +1,8 @@
 module.exports = {
-    signalName: "something",
-    signalValue: () => {
-        return 10;
-    }
+    signals: [{
+        name: "something",
+        getValue: () => {
+            return 10;
+        }
+    }]
 };

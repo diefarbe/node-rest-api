@@ -59,7 +59,9 @@ requirePath({
     setInterval(() => {
       for (let key of Object.keys(modules)) {
         let plugin = modules[key];
-        console.log(plugin.signalName + ":" + plugin.signalValue());
+        for (let signal of plugin.signals) {
+          console.log(signal.name + ":" + signal.getValue());
+        }
       }
     }, 1000);
   })

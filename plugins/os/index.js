@@ -22,22 +22,29 @@ function sampleUsage() {
 
         idle += cpu.times.idle;
     }
-    
+
     if (lastTotal > 0) {
         let currentIdle = idle - lastIdle;
         let currentTotal = total - lastTotal;
-        
+
         currentUsage = Math.floor((1 - currentIdle / currentTotal) * 100);
     }
-    
+
     lastIdle = idle;
     lastTotal = total;
 }
 
 module.exports = {
-    signalName: "cpu_utilization",
-    signalValue: () => {
-       sampleUsage();
-       return currentUsage;
-    }
+    signals: [{
+        name: "cpu_utilization",
+        getValue: () => {
+            sampleUsage();
+            return currentUsage;
+        }
+    }, {
+        name: "memory_utilization",
+        getValue: () => {
+            return 1 - os.freemem() / os.totalmem();
+        }
+    }]
 };

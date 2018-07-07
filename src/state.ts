@@ -27,6 +27,8 @@ export type StateChangeRequest = {
 export type Signal = number | "nosignal";
 
 export type SignalProviderPlugin = {
-  signalName: string,
-  signalValue: () => Signal,
+  signals: {
+    name: string,
+    getValue: () => Signal,
+  }[];
 }
