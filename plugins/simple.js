@@ -1,3 +1,6 @@
-module.exports = function () {
-    console.log("loaded simple");
+module.exports = {
+    signalName: "something",
+    signalValue: () => {
+        return 10;
+    }
 };

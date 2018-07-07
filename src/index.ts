@@ -1,5 +1,5 @@
 import {APIKeyboard} from "./keyboard";
-import {StateChangeRequest} from "./state";
+import {SignalProviderPlugin, StateChangeRequest} from "./state";
 
 const feathers = require('@feathersjs/feathers');
 const express = require('@feathersjs/express');
@@ -55,10 +55,12 @@ requirePath({
   path: "plugins",
   include: ["*.js", "*/index.js"]
 })
-  .then((modules: { [key: string]: Function }) => {
+  .then((modules: { [key: string]: SignalProviderPlugin }) => {
     for (let key of Object.keys(modules)) {
-      modules[key]();
-    } 
+      let plugin = modules[key];
+      console.log(plugin.signalName);
+      console.log(plugin.signalValue());
+    }
   })
   .catch((errors: any) => {
     throw errors;

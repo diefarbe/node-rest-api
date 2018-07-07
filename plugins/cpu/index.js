@@ -1,3 +1,6 @@
-module.exports = function () {
-    console.log("loaded cpu");
+module.exports = {
+    signalName: "cpu_utilization",
+    signalValue: () => {
+        return 10;
+    }
 };
