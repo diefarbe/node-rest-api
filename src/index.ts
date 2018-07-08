@@ -60,7 +60,7 @@ requirePath({
       for (let key of Object.keys(modules)) {
         let plugin = modules[key];
         for (let signal of plugin.signals) {
-          console.log(signal.name + ":" + signal.getValue());
+          // console.log(signal.name + ":" + signal.getValue());
         }
       }
     }, 1000);

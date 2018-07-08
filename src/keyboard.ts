@@ -20,41 +20,54 @@ export class APIKeyboard {
     constructor() {
         this.keyboard = new Keyboard();
         usbDetect.startMonitoring();
-        usbDetect.on("remove:9456", (device: any) => {
-            if (this.isInitalized) {
-                console.log("Removed a das keyboard");
-                this.isInitalized = false;
-            }
 
+        usbDetect.find(9456, (error: any, device: any) => {
+            console.log("Found a das keyboard, initalizing");
+            this.internalSetupKeyboard();
+        })
+
+        usbDetect.on("remove:9456", (device: any) => {
+            console.log("Removed a das keyboard");
+            this.cleanupKeyboardDisconnect();
+        })
+
+        usbDetect.on("add:9456", (device: any) => {
+            console.log("Added a das keyboard");
+
+            console.log("Waiting 2 seconds to take over while keyboard boots");
+            setTimeout(() => {
+                this.internalSetupKeyboard();
+            }, 2000);
         })
     }
 
-    hasKeyboard() {
-        if (this.isInitalized) {
-            // we've already setup a keyboard
-            // TODO what do we do if we unplug? should we reset this
-            return true;
-        }
-
+    internalSetupKeyboard() {
         try {
             this.keyboard.find();
 
             // we found a keyboard, let's go ahead and handle taking over it
             this.initalizeKeyboard()
 
-            return true;
+            console.log("Got that keyboard");
+            this.isInitalized = true;
         } catch {
+            console.log("Failed to take over keyboard");
             this.isInitalized = false;
-            return false;
         }
+    }
+
+    cleanupKeyboardDisconnect() {
+        this.isInitalized = false;
+    }
+
+    hasKeyboard() {
+        return this.isInitalized
     }
 
     initalizeKeyboard() {
         this.keyboard.initialize();
 
         this.firmwareVersionString = this.keyboard.getKeyboardData().firmware;
-
-        this.isInitalized = true;
     }
 
     getBasicInfo() {
@@ -90,16 +103,23 @@ export class APIKeyboard {
     }
 
     getKeyChannelData(key: string, type?: "red" | "green" | "blue"): ChannelInfo {
+        let data: { [key: string]: any } = {};
         if (type === "red") {
-            return this.handleChannelData(key, this.red);
+            data = this.handleChannelData(key, this.red);
         }
         if (type === "green") {
-            return this.handleChannelData(key, this.green);
+            data = this.handleChannelData(key, this.green);
         }
         if (type === "blue") {
-            return this.handleChannelData(key, this.blue);
+            data = this.handleChannelData(key, this.blue);
         }
-        throw new Error("unknown channel");
+
+        const ordered: { [key: string]: any } = {};
+        Object.keys(data).sort().forEach(function (key) {
+            ordered[key] = data[key];
+        });
+        return ordered;
+
     }
 
     handleChannelData(key: string, channel: any): ChannelInfo {
@@ -134,46 +154,46 @@ export class APIKeyboard {
             this.internalSendKeyData(key, "green", change.data.green);
             this.internalSendKeyData(key, "blue", change.data.blue);
         }
+        this.keyboard.freezeEffects();
         this.keyboard.apply();
     }
 
     private internalSendKeyData(key: KeyModel, channel: "red" | "green" | "blue", data: ChannelInfo) {
 
-        const aState = new ChannelState(key, channel)
+        console.log("Parsing a " + channel + " channel:");
+        console.log(JSON.stringify(data, null, 4));
 
-            .setUpMaximumLevel(data.upMaximumLevel)
-            .setUpIncrement(data.upIncrement)
-            .setUpIncrementDelay(data.upIncrementDelay)
-            .setUpHoldDelay(data.upHoldDelay)
-            .setUpHoldLevel(data.upHoldLevel)
-
-            .setDownMinimumLevel(data.downMinimumLevel)
-            .setDownDecrement(data.downDecrement)
-            .setDownDecrementDelay(data.downDecrementDelay)
+        let aState = new ChannelState(key, channel)
+            .setUpHoldLevel(data.upHoldLevel) //
             .setDownHoldLevel(data.downHoldLevel)
+            .setUpIncrementDelay(data.upIncrementDelay)
+            .setDownDecrementDelay(data.downDecrementDelay)
+            .setUpMaximumLevel(data.upMaximumLevel)
+            .setDownMinimumLevel(data.downMinimumLevel)
+            .setUpIncrement(data.upIncrement)
+            .setDownDecrement(data.downDecrement)
+            .setUpHoldDelay(data.upHoldDelay)
             .setDownHoldDelay(data.downHoldDelay)
-
             .setStartDelay(data.startDelay)
-
             .setApplyDelayed();
 
         if (data.direction === "dec") {
-            aState.setMoveDown();
+            aState = aState.setMoveDown();
         }
 
         if (data.direction === "inc") {
-            aState.setMoveUp();
+            aState = aState.setMoveUp();
         }
 
         if (data.direction === "incDec") {
-            aState.setIncrementDecrement();
+            aState = aState.setIncrementDecrement();
         }
 
         if (data.direction === "decInc") {
-            aState.setDecrementIncrement();
+            aState = aState.setDecrementIncrement();
         }
 
-        aState.setTransition(!!data.transition);
+        aState = aState.setTransition(!!data.transition);
 
         this.keyboard.setKeyColorChannel(
             aState,
