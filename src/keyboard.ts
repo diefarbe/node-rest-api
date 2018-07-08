@@ -13,9 +13,9 @@ export class APIKeyboard {
 
     firmwareVersionString: string = "0.0.0";
 
-    red: { [key in string ]: ChannelInfo } = {}
-    green: { [key in string ]: ChannelInfo } = {}
-    blue: { [key in string ]: ChannelInfo } = {}
+    red: { [key in string]: ChannelInfo } = {}
+    green: { [key in string]: ChannelInfo } = {}
+    blue: { [key in string]: ChannelInfo } = {}
 
     constructor() {
         this.keyboard = new Keyboard();
@@ -134,25 +134,49 @@ export class APIKeyboard {
             this.internalSendKeyData(key, "green", change.data.green);
             this.internalSendKeyData(key, "blue", change.data.blue);
         }
+        this.keyboard.apply();
     }
 
-    private internalSendKeyData(key: KeyModel, channel: "red" | "green" | "blue" , data: ChannelInfo) {
+    private internalSendKeyData(key: KeyModel, channel: "red" | "green" | "blue", data: ChannelInfo) {
+
+        const aState = new ChannelState(key, channel)
+
+            .setUpMaximumLevel(data.upMaximumLevel)
+            .setUpIncrement(data.upIncrement)
+            .setUpIncrementDelay(data.upIncrementDelay)
+            .setUpHoldDelay(data.upHoldDelay)
+            .setUpHoldLevel(data.upHoldLevel)
+
+            .setDownMinimumLevel(data.downMinimumLevel)
+            .setDownDecrement(data.downDecrement)
+            .setDownDecrementDelay(data.downDecrementDelay)
+            .setDownHoldLevel(data.downHoldLevel)
+            .setDownHoldDelay(data.downHoldDelay)
+
+            .setStartDelay(data.startDelay)
+
+            .setApplyDelayed();
+
+        if (data.direction === "dec") {
+            aState.setMoveDown();
+        }
+
+        if (data.direction === "inc") {
+            aState.setMoveUp();
+        }
+
+        if (data.direction === "incDec") {
+            aState.setIncrementDecrement();
+        }
+
+        if (data.direction === "decInc") {
+            aState.setDecrementIncrement();
+        }
+
+        aState.setTransition(!!data.transition);
+
         this.keyboard.setKeyColorChannel(
-            new ChannelState(key, channel)
-
-                .setUpMaximumLevel(data.upMaximumLevel)
-                .setUpIncrement(data.upIncrement)
-                .setUpIncrementDelay(data.upIncrementDelay)
-                .setUpHoldDelay(data.upHoldDelay)
-                .setUpHoldLevel(data.upHoldLevel)
-
-                .setDownMinimumLevel(data.downMinimumLevel)
-                .setDownDecrement(data.downDecrement)
-                .setDownDecrementDelay(data.downDecrementDelay)
-                .setDownHoldLevel(data.downHoldLevel)
-                .setDownHoldDelay(data.downHoldDelay)
-                
-                .setStartDelay(0)
+            aState,
         )
     }
 

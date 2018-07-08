@@ -11,6 +11,9 @@ export type ChannelInfo = {
   downDecrementDelay?: number;
   startDelay?: number;
   effectId?: number;
+
+  direction?: "inc" | "incDec" | "dec" | "decInc"
+  transition?: boolean;
 }
 
 export type StateInfo = {
