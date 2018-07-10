@@ -49,6 +49,10 @@ export class APIKeyboard {
             this.initalizeKeyboard()
 
             console.log("Got that keyboard");
+
+            const defaultProfile = require("../assets/profiles/breathing_stripes.json")
+            this.processKeyChanges(defaultProfile.profileData)
+
             this.isInitalized = true;
         } catch {
             console.log("Failed to take over keyboard");
