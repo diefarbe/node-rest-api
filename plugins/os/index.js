@@ -1,5 +1,8 @@
 let os = require("os");
 
+// TODO this is not a standard package, include this separately
+let si = require("systeminformation");
+
 // note that this is the total utilization since boot
 // getting the current utilization will require taking two spaced samples and subtracting them
 
@@ -37,14 +40,26 @@ function sampleUsage() {
 module.exports = {
     signals: [{
         name: "cpu_utilization",
-        getValue: () => {
-            sampleUsage();
-            return currentUsage;
+        description: "The amount of CPU used from 0-100.",
+        source: {
+            type: "polling",
+            interval: 1,
+            poll: () => {
+                sampleUsage();
+                return currentUsage;
+            }
         }
     }, {
         name: "memory_utilization",
-        getValue: () => {
-            return Math.floor((1 - os.freemem() / os.totalmem()) * 100);
+        description: "The amount of memory used from 0-100.",
+        source: {
+            type: "pollingCallback",
+            interval: 1,
+            poll: (callback) => {
+                si.mem(data => {
+                    callback((1 - data.available / data.total) * 100)
+                });
+            }
         }
     }]
 };

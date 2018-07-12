@@ -1,5 +1,13 @@
 import {APIKeyboard} from "./keyboard";
-import {SignalProviderPlugin, StateChangeRequest} from "./state";
+import {
+  HookSource,
+  PollingCallbackSource,
+  PollingSource,
+  Signal,
+  SignalProviderPlugin,
+  SignalSource,
+  StateChangeRequest
+} from "./state";
 
 const feathers = require('@feathersjs/feathers');
 const express = require('@feathersjs/express');
@@ -56,14 +64,30 @@ requirePath({
   include: ["*.js", "*/index.js"]
 })
   .then((modules: { [key: string]: SignalProviderPlugin }) => {
-    setInterval(() => {
-      for (let key of Object.keys(modules)) {
-        let plugin = modules[key];
-        for (let signal of plugin.signals) {
-          // console.log(signal.name + ":" + signal.getValue());
+    for (let key of Object.keys(modules)) {
+      let plugin = modules[key];
+      for (let signal of plugin.signals) {
+        const source = signal.source; // type checking wants this for some reason
+        
+        if (source.type == "polling") {
+          setInterval(() => {
+            console.log(signal.name + ":" + source.poll());
+          }, source.interval * 1000);
+        } else if (source.type == "pollingCallback") {
+          setInterval(() => {
+            source.poll(signal1 => {
+              console.log(signal.name + ":" + signal1);
+            });
+          }, source.interval * 1000);
+        } else if (source.type == "hook") {
+          source.attach(signal1 => {
+            console.log(signal.name + ":" + signal1);
+          });
+        } else {
+          throw new Error("should never happen");
         }
       }
-    }, 1000);
+    }
   })
   .catch((errors: any) => {
     throw errors;

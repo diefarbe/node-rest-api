@@ -1,8 +1,12 @@
 module.exports = {
     signals: [{
         name: "something",
-        getValue: () => {
-            return 10;
+        source: {
+            type: "polling",
+            interval: 1,
+            poll: () => {
+                return 10;
+            }
         }
     }]
 };
