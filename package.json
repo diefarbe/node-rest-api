@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "tslint -p tsconfig.json",
     "start": "ts-node --project tsconfig.json src/index.ts"
   },
   "keywords": [],
@@ -17,6 +18,7 @@
     "mathjs": "^5.0.2",
     "require-path": "^0.3.0",
     "systeminformation": "^3.42.3",
+    "tslint": "^5.10.0",
     "usb-detection": "^3.1.0",
     "uuid": "^3.3.2"
   },

@@ -3,13 +3,13 @@ import { SettingsModule } from "../modules/settings";
 
 export function init(apiKeyboard: KeyboardModule, settings: SettingsModule) {
 
-    let hasKeyboard = apiKeyboard.hasKeyboard();
+    const hasKeyboard = apiKeyboard.hasKeyboard();
 
     return {
         async find() {
             return {
                 keyboardInfo: {
-                    hasKeyboard: hasKeyboard,
+                    hasKeyboard,
                     ...apiKeyboard.getBasicInfo(),
                 },
                 profileSettings: settings.getSettings(),
@@ -21,7 +21,7 @@ export function init(apiKeyboard: KeyboardModule, settings: SettingsModule) {
         async update(id: string, data: any) {
             await settings.pushSetting(data);
             return {
-                hasKeyboard: hasKeyboard,
+                hasKeyboard,
                 keyboardInfo: apiKeyboard.getBasicInfo(),
                 profileSettings: settings.getSettings(),
                 serverInfo: {
@@ -29,6 +29,6 @@ export function init(apiKeyboard: KeyboardModule, settings: SettingsModule) {
                 }
             };
         }
-    }
+    };
 
-};
+}

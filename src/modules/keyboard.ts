@@ -1,5 +1,5 @@
-import { Keyboard, KeyInfo, KeyModel, ChannelState } from "das";
-var usbDetect = require('usb-detection');
+import { ChannelState, Keyboard, KeyInfo, KeyModel } from "das";
+const usbDetect = require("usb-detection");
 import { ChannelInfo, StateChangeRequest } from "../types";
 import { SettingsModule } from "./settings";
 
@@ -7,7 +7,7 @@ export class KeyboardModule {
 
     private readonly hardwareKeyboard: Keyboard;
     private readonly settings: SettingsModule;
-    private readonly connectionChanged: (connected: boolean) => void
+    private readonly connectionChanged: (connected: boolean) => void;
     private firmwareVersionString: string = "0.0.0";
     private isInitalized: boolean = false;
 
@@ -17,7 +17,7 @@ export class KeyboardModule {
         this.hardwareKeyboard = new Keyboard();
     }
 
-    init() {
+    public init() {
         usbDetect.startMonitoring();
 
         // There's a filtered search, but it seems broken...
@@ -35,7 +35,7 @@ export class KeyboardModule {
         usbDetect.on("remove:9456", (device: any) => {
             console.log("Keyboard: Removed a das keyboard");
             this.cleanupKeyboardDisconnect();
-        })
+        });
 
         usbDetect.on("add:9456", (device: any) => {
             console.log("Keyboard: Added a das keyboard");
@@ -44,18 +44,18 @@ export class KeyboardModule {
             setTimeout(() => {
                 this.internalSetupKeyboard();
             }, 2000);
-        })
+        });
     }
 
-    close() {
+    public close() {
         this.hardwareKeyboard.close();
     }
 
-    hasKeyboard() {
+    public hasKeyboard() {
         return this.isInitalized;
     }
 
-    processKeyChanges(changes: StateChangeRequest[]): any {
+    public processKeyChanges(changes: StateChangeRequest[]): any {
         if (this.isInitalized) {
             this.applyKeyboardChanges(changes);
         }
@@ -64,11 +64,11 @@ export class KeyboardModule {
     /**
      * Returns basic information about the keyboard.
      */
-    getBasicInfo(): { firmware: string | null } {
+    public getBasicInfo(): { firmware: string | null } {
         if (this.isInitalized) {
             return {
                 firmware: this.firmwareVersionString,
-            }
+            };
         }
         return {
             firmware: null,
@@ -145,7 +145,7 @@ export class KeyboardModule {
 
         this.hardwareKeyboard.setKeyColorChannel(
             aState,
-        )
+        );
     }
 
 }

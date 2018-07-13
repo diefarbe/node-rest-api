@@ -2,16 +2,15 @@ import { KeyboardModule } from "../modules/keyboard";
 import { SettingsModule } from "../modules/settings";
 import { StateModule } from "../modules/state";
 
-
 export function init(apiKeyboard: KeyboardModule, settings: SettingsModule, state: StateModule) {
 
     return {
         async find() {
-            let profiles = settings.getProfiles();
+            const profiles = settings.getProfiles();
             return profiles;
         },
         async get(key: string) {
-            let profiles = settings.getProfiles();
+            const profiles = settings.getProfiles();
             return profiles[key];
         },
         async create(data: any) {
@@ -22,6 +21,6 @@ export function init(apiKeyboard: KeyboardModule, settings: SettingsModule, stat
             const profile = settings.deleteProfile(id);
             return Promise.resolve(profile);
         }
-    }
+    };
 
-};
+}

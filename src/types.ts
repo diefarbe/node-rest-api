@@ -1,4 +1,4 @@
-export type ChannelInfo = {
+export interface ChannelInfo {
     upHoldLevel?: number;
     downHoldLevel?: number;
     upMaximumLevel?: number;
@@ -12,54 +12,54 @@ export type ChannelInfo = {
     startDelay?: number;
     effectId?: number;
 
-    direction?: "inc" | "incDec" | "dec" | "decInc"
+    direction?: "inc" | "incDec" | "dec" | "decInc";
     transition?: boolean;
 }
 
-export type StateInfo = {
-    red: ChannelInfo,
-    green: ChannelInfo,
-    blue: ChannelInfo,
+export interface StateInfo {
+    red: ChannelInfo;
+    green: ChannelInfo;
+    blue: ChannelInfo;
 }
 
-export type StateChangeRequest = {
+export interface StateChangeRequest {
     key: string;
     data: StateInfo;
 }
 
 export type Signal = number | "nosignal";
 
-export type PluginSignal = {
+export interface PluginSignal {
     name: string;
     description?: string;
     tags: string[];
     source: SignalSource;
-};
+}
 
-export type SignalProviderPlugin = {
+export interface SignalProviderPlugin {
     signals: PluginSignal[];
 }
 
 export type SignalSource = PollingSource | PollingCallbackSource | HookSource;
 
-export type PollingSource = {
-    type: "polling",
-    interval: number, // how often to poll in seconds
-    poll: () => Signal,
-};
-
-export type PollingCallbackSource = {
-    type: "pollingCallback",
-    interval: number, // how often to poll in seconds
-    poll: (callback: (signal: Signal) => void) => void,
+export interface PollingSource {
+    type: "polling";
+    interval: number; // how often to poll in seconds
+    poll: () => Signal;
 }
 
-export type HookSource = {
-    type: "hook",
-    attach: (callback: (signal: Signal) => void) => { unhook: () => void },
-};
+export interface PollingCallbackSource {
+    type: "pollingCallback";
+    interval: number; // how often to poll in seconds
+    poll: (callback: (signal: Signal) => void) => void;
+}
 
-export type ChannelAnimation = {
+export interface HookSource {
+    type: "hook";
+    attach: (callback: (signal: Signal) => void) => { unhook: () => void };
+}
+
+export interface ChannelAnimation {
     // these are all numeric values, optionally using a math expression
 
     upHoldLevel?: string;
@@ -82,31 +82,31 @@ export type ChannelAnimation = {
 
     direction?: string;
     transition?: string;
-};
+}
 
-export type Animation = {
+export interface Animation {
     red: ChannelAnimation;
     green: ChannelAnimation;
     blue: ChannelAnimation;
-};
+}
 
 /**
  This structure maps a signal to a set of animations on the keyboard.
 
  Each range maps a upper and lower bound of the signal value to a certain animation.
  */
-export type SignalMapping = {
+export interface SignalMapping {
     signal: string; // the signal you're mapping
-    min: 0,
-    max: 100,
-    ranges: {
+    min: 0;
+    max: 100;
+    ranges: Array<{
         start: number;
         startInclusive: boolean;
         end: number;
         endInclusive: boolean;
         activatedAnimation: Animation | null; // the animation to use when the key is active, null to inherit the profile animation
         notActivatedAnimation: Animation | null; // the animation to use when the key is not active, null to inherit the profile animation
-    }[];
+    }>;
     layouts: {
         [layout: string]: {
             keyGroups: string[][];
@@ -117,9 +117,9 @@ export type SignalMapping = {
         }
     };
     fadeTime: string; // e.g. "start - end"
-};
+}
 
-export type Profile = {
+export interface Profile {
     name: string;
     description?: string;
     defaultAnimations: {
@@ -127,4 +127,4 @@ export type Profile = {
     };
     uuid: string;
     enabledSignals: string[] | string;
-};
+}

@@ -1,0 +1,26 @@
+{
+    "defaultSeverity": "error",
+    "extends": [
+        "tslint:recommended"
+    ],
+    "linterOptions": {
+        "exclude": [
+            "POC",
+            "support",
+            "src/*.spec.ts"
+        ]
+    },
+    "jsRules": {},
+    "rules": {
+        "indent": [true, "spaces", 4],
+        "trailing-comma": [
+            false
+        ],
+        "max-line-length": [
+            false
+        ],
+        "no-trailing-whitespace": false,
+        "eofline": false
+    },
+    "rulesDirectory": []
+}

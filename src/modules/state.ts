@@ -1,5 +1,5 @@
-import { ChannelInfo, StateInfo, StateChangeRequest } from "types";
 import { KeyInfo } from "das/dist/key-info";
+import { ChannelInfo, StateChangeRequest, StateInfo } from "types";
 import { KeyboardModule } from "./keyboard";
 import { SettingsModule } from "./settings";
 
@@ -8,9 +8,9 @@ import { SettingsModule } from "./settings";
  */
 export class StateModule {
 
-    red: { [key in string]: ChannelInfo } = {}
-    green: { [key in string]: ChannelInfo } = {}
-    blue: { [key in string]: ChannelInfo } = {}
+    public red: { [key in string]: ChannelInfo } = {};
+    public green: { [key in string]: ChannelInfo } = {};
+    public blue: { [key in string]: ChannelInfo } = {};
 
     private readonly settings: SettingsModule;
 
@@ -22,21 +22,21 @@ export class StateModule {
      * Given a single key, return the current state of that key
      * @param key a key to return
      */
-    getKeyData(key: string): StateInfo {
+    public getKeyData(key: string): StateInfo {
         return {
             red:  this.getKeyChannelData(key, "red"),
             green:  this.getKeyChannelData(key, "green"),
             blue:  this.getKeyChannelData(key, "blue"),
-        }
+        };
     }
 
     /**
      * Given ALL the key data, 
      */
-    getAllKeyData() {
+    public getAllKeyData() {
         const keys: StateChangeRequest[] = [];
 
-        const keysDescriptions = Object.keys(KeyInfo[this.settings.getLayout()])
+        const keysDescriptions = Object.keys(KeyInfo[this.settings.getLayout()]);
         for (const keyDesc of keysDescriptions) {
             keys.push({
                 key: keyDesc,
@@ -50,7 +50,7 @@ export class StateModule {
      * 
      * @param data an array of state changes
      */
-    processKeyChanges(data: StateChangeRequest[]) {
+    public processKeyChanges(data: StateChangeRequest[]) {
         for (const change of data) {
             this.red[change.key] = change.data.red;
             this.green[change.key] = change.data.green;
@@ -78,7 +78,7 @@ export class StateModule {
         }
 
         const ordered: { [key: string]: any } = {};
-        Object.keys(data).sort().forEach(function (key) {
+        Object.keys(data).sort().forEach(function(key) {
             ordered[key] = data[key];
         });
         return ordered;

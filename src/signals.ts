@@ -1,3 +1,6 @@
+import * as math from "mathjs";
+import {KeyboardModule} from "./modules/keyboard";
+import {SettingsModule} from "./modules/settings";
 import {
     Animation, ChannelAnimation, ChannelInfo,
     PluginSignal,
@@ -5,31 +8,28 @@ import {
     Signal, SignalMapping,
     SignalProviderPlugin, StateChangeRequest, StateInfo
 } from "./types";
-import {KeyboardModule} from "./modules/keyboard";
-import * as math from "mathjs";
-import {SettingsModule} from "./modules/settings";
 
 const requirePath = require("require-path");
 
-type EnabledSignal = {
-    pluginSignal: PluginSignal,
-    timer: NodeJS.Timer | null,
-    hook: { unhook: () => void } | null
-};
+interface EnabledSignal {
+    pluginSignal: PluginSignal;
+    timer: NodeJS.Timer | null;
+    hook: { unhook: () => void } | null;
+}
 
 let activeProfile: Profile | null = null;
 
-let signalPlugins: SignalProviderPlugin[] = [];
-let enabledSignalPlugins: EnabledSignal[] = [];
+const signalPlugins: SignalProviderPlugin[] = [];
+const enabledSignalPlugins: EnabledSignal[] = [];
 
-let signals = new Map<string, Signal>();
+const signals = new Map<string, Signal>();
 
 let layout: string;
 
 let apiKeyboard: KeyboardModule;
 let settings: SettingsModule;
 
-let signalMappings: SignalMapping[] = [{
+const signalMappings: SignalMapping[] = [{
     signal: "cpu_utilization",
     min: 0,
     max: 100,
@@ -88,8 +88,8 @@ export function signalsInit(_apiKeyboard: KeyboardModule, _settings: SettingsMod
         include: ["*.js", "*/index.js"]
     })
         .then((modules: { [key: string]: SignalProviderPlugin }) => {
-            for (let key in modules) {
-                let plugin = modules[key];
+            for (const key in modules) {
+                const plugin = modules[key];
                 loadPlugin(plugin);
             }
 
@@ -102,7 +102,7 @@ export function signalsInit(_apiKeyboard: KeyboardModule, _settings: SettingsMod
 
 function setupKeyboard() {
     const currentSettings = settings.getSettings();
-    const profile = settings.getProfiles()[currentSettings.profile]
+    const profile = settings.getProfiles()[currentSettings.profile];
 
     console.log("PROFILE:" + JSON.stringify(currentSettings));
     setProfile(profile);
@@ -115,10 +115,10 @@ export function loadPlugin(plugin: SignalProviderPlugin) {
 
 export function disableSignal(signal: PluginSignal) {
     for (let i = 0; i < enabledSignalPlugins.length; i++) {
-        let enabled = enabledSignalPlugins[i];
+        const enabled = enabledSignalPlugins[i];
         if (enabled.pluginSignal == signal) {
-            if (enabled.timer != null) clearTimeout(enabled.timer);
-            if (enabled.hook != null) enabled.hook.unhook();
+            if (enabled.timer != null) { clearTimeout(enabled.timer); }
+            if (enabled.hook != null) { enabled.hook.unhook(); }
             enabledSignalPlugins.splice(i, 1);
             return;
         }
@@ -126,7 +126,7 @@ export function disableSignal(signal: PluginSignal) {
 }
 
 export function enableSignal(signal: PluginSignal) {
-    let enabledSignal: EnabledSignal = {
+    const enabledSignal: EnabledSignal = {
         pluginSignal: signal,
         timer: null,
         hook: null,
@@ -141,13 +141,13 @@ export function enableSignal(signal: PluginSignal) {
             break;
         case "pollingCallback":
             enabledSignal.timer = setInterval(() => {
-                source.poll(signal1 => {
+                source.poll((signal1) => {
                     signalValueUpdate(signal.name, signal1);
                 });
             }, source.interval * 1000);
             break;
         case "hook":
-            enabledSignal.hook = source.attach(signal1 => {
+            enabledSignal.hook = source.attach((signal1) => {
                 signalValueUpdate(signal.name, signal1);
             });
             break;
@@ -159,19 +159,19 @@ export function enableSignal(signal: PluginSignal) {
 }
 
 export function setProfile(profile: Profile | null) {
-    for (let signal of Object.assign([], enabledSignalPlugins)) {
+    for (const signal of Object.assign([], enabledSignalPlugins)) {
         disableSignal(signal.pluginSignal);
     }
 
     if (profile != null) {
         if (typeof profile.enabledSignals == "string") {
             // we have a tag
-            for (let plugin of signalPlugins) {
-                for (let signal of plugin.signals) {
+            for (const plugin of signalPlugins) {
+                for (const signal of plugin.signals) {
                     if (profile.enabledSignals == "all") {
                         enableSignal(signal);
                     } else {
-                        for (let tag of signal.tags) {
+                        for (const tag of signal.tags) {
                             if (profile.enabledSignals == tag) {
                                 enableSignal(signal);
                             }
@@ -181,9 +181,9 @@ export function setProfile(profile: Profile | null) {
             }
         } else {
             // we have a list of signals
-            for (let enabledSignal of profile.enabledSignals) {
-                for (let plugin of signalPlugins) {
-                    for (let signal of plugin.signals) {
+            for (const enabledSignal of profile.enabledSignals) {
+                for (const plugin of signalPlugins) {
+                    for (const signal of plugin.signals) {
                         if (signal.name == enabledSignal) {
                             enableSignal(signal);
                         }
@@ -204,7 +204,7 @@ export function setProfile(profile: Profile | null) {
  * @param {Signal} value
  */
 function signalValueUpdate(signal: string, value: Signal) {
-    let currentValue = signals.get(signal);
+    const currentValue = signals.get(signal);
     if (currentValue != value) {
         signals.set(signal, value);
         handleNewSignalValue(signal, value);
@@ -219,14 +219,14 @@ function signalValueUpdate(signal: string, value: Signal) {
 function handleNewSignalValue(signal: string, value: Signal) {
     console.log(signal + ":" + value);
 
-    for (let sig of signalMappings) {
+    for (const sig of signalMappings) {
         if (sig.signal == signal) {
-            let lay = sig.layouts[layout];
+            const lay = sig.layouts[layout];
             if (value == "nosignal") {
                 if (activeProfile != null) {
-                    let changes: StateChangeRequest[] = [];
-                    for (let group of lay.keyGroups) {
-                        for (let key of group) {
+                    const changes: StateChangeRequest[] = [];
+                    for (const group of lay.keyGroups) {
+                        for (const key of group) {
                             changes.push(profileAnimation(key, activeProfile));
                         }
                     }
@@ -234,11 +234,11 @@ function handleNewSignalValue(signal: string, value: Signal) {
                 }
                 return;
             }
-            let val = Math.max(Math.min(value, sig.max), sig.min);
+            const val = Math.max(Math.min(value, sig.max), sig.min);
             switch (lay.mode) {
                 case "all":
                     let data: StateInfo | null = null;
-                    for (let range of sig.ranges) {
+                    for (const range of sig.ranges) {
                         if (((range.start <= val && range.startInclusive) || (range.start < val && !range.startInclusive)) &&
                             ((val <= range.end && range.endInclusive) || (val < range.end && !range.endInclusive))) {
                             if (range.activatedAnimation != null) {
@@ -247,13 +247,13 @@ function handleNewSignalValue(signal: string, value: Signal) {
                         }
                     }
                     console.log(JSON.stringify(data));
-                    let changes: StateChangeRequest[] = [];
-                    for (let group of lay.keyGroups) {
-                        for (let key of group) {
+                    const changes: StateChangeRequest[] = [];
+                    for (const group of lay.keyGroups) {
+                        for (const key of group) {
                             if (data != null) {
                                 changes.push({
-                                    key: key,
-                                    data: data
+                                    key,
+                                    data
                                 });
                             } else if (activeProfile != null) {
                                 changes.push(profileAnimation(key, activeProfile));
@@ -279,7 +279,7 @@ function handleNewSignalValue(signal: string, value: Signal) {
 }
 
 function profileAnimation(key: string, profile: Profile): StateChangeRequest {
-    for (let change of profile.defaultAnimations[layout]) {
+    for (const change of profile.defaultAnimations[layout]) {
         if (change.key == key) {
             return change;
         }
@@ -296,7 +296,7 @@ function signalAnimation(animation: Animation, value: number): StateInfo {
 }
 
 function signalAnimationHelper(channelAnimation: ChannelAnimation, value: number): ChannelInfo {
-    let scope = {
+    const scope = {
         signal: value
     };
     return {

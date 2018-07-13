@@ -1,8 +1,7 @@
 import { KeyboardModule } from "../modules/keyboard";
 import { SettingsModule } from "../modules/settings";
-import { StateChangeRequest } from "../types";
 import { StateModule } from "../modules/state";
-
+import { StateChangeRequest } from "../types";
 
 export function init(keyboard: KeyboardModule, settings: SettingsModule, state: StateModule) {
 
@@ -12,7 +11,7 @@ export function init(keyboard: KeyboardModule, settings: SettingsModule, state: 
         },
         async get(key: string) {
             return {
-                key: key,
+                key,
                 data: state.getKeyData(key),
             };
         },
@@ -21,8 +20,8 @@ export function init(keyboard: KeyboardModule, settings: SettingsModule, state: 
             keyboard.processKeyChanges(data);
             return {
                 ok: true,
-            }
+            };
         }
-    }
+    };
 
-};
+}

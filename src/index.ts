@@ -1,3 +1,10 @@
+import * as InitEndpoint from "./endpoints/info";
+import * as KeysEndpoint from "./endpoints/keys";
+import * as ProfileEndpoint from "./endpoints/profiles";
+import { KeyboardModule } from "./modules/keyboard";
+import { SettingsModule } from "./modules/settings";
+import { StateModule } from "./modules/state";
+import { setProfile, signalsInit } from "./signals";
 import {
     HookSource,
     PollingCallbackSource,
@@ -7,22 +14,15 @@ import {
     SignalSource,
     StateChangeRequest
 } from "./types";
-import { KeyboardModule } from "./modules/keyboard";
-import { SettingsModule } from "./modules/settings";
-import * as InitEndpoint from "./endpoints/info";
-import * as ProfileEndpoint from "./endpoints/profiles";
-import * as KeysEndpoint from "./endpoints/keys";
-import { StateModule } from "./modules/state";
-import { signalsInit, setProfile } from "./signals";
 
-const feathers = require('@feathersjs/feathers');
-const express = require('@feathersjs/express');
+const feathers = require("@feathersjs/feathers");
+const express = require("@feathersjs/express");
 
 function configureFeathers() {
     const app = express(feathers());
 
     // Turn on JSON body parsing for REST services
-    app.use(express.json())
+    app.use(express.json());
 
     // Turn on URL-encoded body parsing for REST services
     app.use(express.urlencoded({ extended: true }));
@@ -62,13 +62,13 @@ async function startProgram() {
 
     signalsInit(apiKeyboard, settings);
 
-    app.use('info', InitEndpoint.init(apiKeyboard, settings));
-    app.use('profiles', ProfileEndpoint.init(apiKeyboard, settings, state));
-    app.use('keys', KeysEndpoint.init(apiKeyboard, settings, state));
+    app.use("info", InitEndpoint.init(apiKeyboard, settings));
+    app.use("profiles", ProfileEndpoint.init(apiKeyboard, settings, state));
+    app.use("keys", KeysEndpoint.init(apiKeyboard, settings, state));
 
     const server = app.listen(3030);
 
-    server.on('listening', () => console.log('Feathers REST API started at http://localhost:3030'));
+    server.on("listening", () => console.log("Feathers REST API started at http://localhost:3030"));
 
     function cleanupProgram() {
         server.close();
@@ -76,12 +76,12 @@ async function startProgram() {
         setProfile(null); // detaches from signal handlers
     }
 
-    process.on('SIGINT', () => {
+    process.on("SIGINT", () => {
         console.log("SIGINT");
         cleanupProgram();
     });
 
-    process.on('exit', () => {
+    process.on("exit", () => {
         console.log("exit");
         cleanupProgram();
     });
@@ -89,4 +89,3 @@ async function startProgram() {
 }
 
 startProgram();
-
