@@ -4,9 +4,13 @@ import {
     Profile,
     Signal, SignalMapping,
     SignalProviderPlugin, StateChangeRequest, StateInfo
+    Signal,
+    SignalProviderPlugin,
 } from "./state";
 import {APIKeyboard} from "./keyboard";
 import * as math from "mathjs";
+import { APIKeyboard } from "./keyboard";
+import { Settings } from "settings";
 
 const requirePath = require("require-path");
 
@@ -26,6 +30,7 @@ let signals = new Map<string, Signal>();
 let layout = "en-US"; // changing this at runtime requires calling `setProfile(activeProfile)`
 
 let apiKeyboard: APIKeyboard;
+let settings: Settings;
 
 let signalMappings: SignalMapping[] = [{
     signal: "cpu_utilization",
@@ -75,8 +80,9 @@ let signalMappings: SignalMapping[] = [{
 
 console.log(JSON.stringify(signalMappings[0]));
 
-export function signalsInit(_apiKeyboard: APIKeyboard) {
+export function signalsInit(_apiKeyboard: APIKeyboard, _settings: Settings) {
     apiKeyboard = _apiKeyboard;
+    settings = _settings;
 
     requirePath({
         path: "plugins",
@@ -94,8 +100,15 @@ export function signalsInit(_apiKeyboard: APIKeyboard) {
             throw errors;
         });
 
-    const defaultProfile: Profile = require("../assets/profiles/breathing_stripes.json");
-    setProfile(defaultProfile);
+    setupKeyboard();
+}
+
+function setupKeyboard() {
+    const currentSettings = settings.getSettings();
+    const profile = settings.getProfiles()[currentSettings.profile]
+
+    console.log("PROFILE:" + JSON.stringify(currentSettings));
+    apiKeyboard.processKeyChanges(profile.defaultAnimations[layout]);
 }
 
 export function loadPlugin(plugin: SignalProviderPlugin) {

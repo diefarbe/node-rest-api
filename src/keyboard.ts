@@ -1,30 +1,41 @@
-import {Keyboard, KeyInfo, KeyState} from "das/dist";
-
+import { Keyboard, KeyInfo } from "das";
 var usbDetect = require('usb-detection');
-import {StateInfo, ChannelInfo, StateChangeRequest} from "./state";
-import {KeyModel} from "das/dist/internal/models";
-import {ChannelState} from "das/dist/channel-state";
+import { StateInfo, ChannelInfo, StateChangeRequest } from "state";
+import { KeyModel } from "das/dist/internal/models";
+import { ChannelState } from "das/dist/channel-state";
+import { Settings } from "settings";
 
 export class APIKeyboard {
 
-    keyboard: Keyboard;
+    hardwareKeyboard: Keyboard;
 
     isInitalized: boolean = false;
 
     firmwareVersionString: string = "0.0.0";
 
+    settings: Settings;
+
     red: { [key in string]: ChannelInfo } = {}
     green: { [key in string]: ChannelInfo } = {}
     blue: { [key in string]: ChannelInfo } = {}
 
-    constructor() {
-        this.keyboard = new Keyboard();
+    constructor(settings: Settings) {
+        this.settings = settings;
+
+        this.hardwareKeyboard = new Keyboard();
         usbDetect.startMonitoring();
 
-        usbDetect.find(9456, (error: any, device: any) => {
-            console.log("Found a das keyboard, initalizing");
-            this.internalSetupKeyboard();
-        })
+        // There's a filtered search, but it seems broken...
+        usbDetect.find((error: any, devices: any) => {
+            for (const device of devices) {
+                if (device.vendorId === 9456) {
+                    console.log("Found a das keyboard, initalizing");
+                    setTimeout(() => {
+                        this.internalSetupKeyboard();
+                    }, 2000);
+                }
+            }
+        });
 
         usbDetect.on("remove:9456", (device: any) => {
             console.log("Removed a das keyboard");
@@ -34,16 +45,20 @@ export class APIKeyboard {
         usbDetect.on("add:9456", (device: any) => {
             console.log("Added a das keyboard");
 
-            console.log("Waiting 2 seconds to take over while keyboard boots");
+            console.log("Found a das keyboard, initalizing");
             setTimeout(() => {
                 this.internalSetupKeyboard();
             }, 2000);
         })
     }
 
+    close() {
+        this.hardwareKeyboard.close();
+    }
+
     internalSetupKeyboard() {
         try {
-            this.keyboard.find();
+            this.hardwareKeyboard.find();
 
             // we found a keyboard, let's go ahead and handle taking over it
             this.initalizeKeyboard()
@@ -66,16 +81,17 @@ export class APIKeyboard {
     }
 
     initalizeKeyboard() {
-        this.keyboard.initialize();
+        this.hardwareKeyboard.initialize();
+        this.firmwareVersionString = this.hardwareKeyboard.getKeyboardData().firmware;
 
-        this.firmwareVersionString = this.keyboard.getKeyboardData().firmware;
+        this.applyKeyboardChanges(this.getAllKeyData());
     }
 
     getBasicInfo() {
         if (this.isInitalized) {
             return {
                 firmware: this.firmwareVersionString,
-                layout: "en_US"
+                layout: "en-US"
             }
         }
         return null;
@@ -140,7 +156,9 @@ export class APIKeyboard {
             this.green[change.key] = change.data.green;
             this.blue[change.key] = change.data.blue;
         }
-        this.applyKeyboardChanges(changes);
+        if (this.isInitalized) {
+            this.applyKeyboardChanges(changes);
+        }
         return {
             ok: true,
         }
@@ -155,14 +173,11 @@ export class APIKeyboard {
             this.internalSendKeyData(key, "green", change.data.green);
             this.internalSendKeyData(key, "blue", change.data.blue);
         }
-        this.keyboard.freezeEffects();
-        this.keyboard.apply();
+        this.hardwareKeyboard.freezeEffects();
+        this.hardwareKeyboard.apply();
     }
 
     private internalSendKeyData(key: KeyModel, channel: "red" | "green" | "blue", data: ChannelInfo) {
-
-        //console.log("Parsing a " + channel + " channel:");
-        //console.log(JSON.stringify(data, null, 4));
 
         let aState = new ChannelState(key, channel)
             .setUpHoldLevel(data.upHoldLevel) //
@@ -196,7 +211,7 @@ export class APIKeyboard {
 
         aState = aState.setTransition(!!data.transition);
 
-        this.keyboard.setKeyColorChannel(
+        this.hardwareKeyboard.setKeyColorChannel(
             aState,
         )
     }

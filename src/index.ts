@@ -1,4 +1,3 @@
-import {APIKeyboard} from "./keyboard";
 import {
     HookSource,
     PollingCallbackSource,
@@ -8,7 +7,12 @@ import {
     SignalSource,
     StateChangeRequest
 } from "./state";
-import {setProfile, signalsInit} from "./signals";
+import { setProfile, signalsInit } from "./signals";
+import { APIKeyboard } from "./keyboard";
+import { Settings } from "./settings";
+import * as InitEndpoint from "./endpoints/info";
+import * as ProfileEndpoint from "./endpoints/profiles";
+import * as KeysEndpoint from "./endpoints/keys";
 
 const feathers = require('@feathersjs/feathers');
 const express = require('@feathersjs/express');
@@ -19,7 +23,7 @@ const app = express(feathers());
 app.use(express.json())
 
 // Turn on URL-encoded body parsing for REST services
-app.use(express.urlencoded({extended: true}));
+app.use(express.urlencoded({ extended: true }));
 
 // Set up REST transport using Express
 app.configure(express.rest());
@@ -27,51 +31,40 @@ app.configure(express.rest());
 // Set up an error handler that gives us nicer errors
 app.use(express.errorHandler());
 
-const apiKeyboard = new APIKeyboard();
+async function startProgram() {
+    const settings = new Settings();
+    await settings.init();
 
-app.use('info', {
-    async find() {
-        let hasKeyboard = apiKeyboard.hasKeyboard();
-        return {
-            hasKeyboard: hasKeyboard,
-            data: apiKeyboard.getBasicInfo(),
-        };
+    const apiKeyboard = new APIKeyboard(settings);
+
+    signalsInit(apiKeyboard, settings);
+
+    app.use('info', InitEndpoint.init(apiKeyboard, settings));
+    app.use('profiles', ProfileEndpoint.init(apiKeyboard, settings));
+    app.use('keys', KeysEndpoint.init(apiKeyboard, settings));
+
+    const server = app.listen(3030);
+
+    server.on('listening', () => console.log('Feathers REST API started at http://localhost:3030'));
+
+
+    function cleanupProgram() {
+        server.close();
+        apiKeyboard.close();
+        setProfile(null);
     }
-});
 
-app.use('keys', {
-    async find() {
-        return apiKeyboard.getAllKeyData();
-    },
-    async get(key: string) {
-        return {
-            key: key,
-            data: apiKeyboard.getKeyData(key),
-        };
-    },
-    async update(item: any, data: StateChangeRequest[]) {
-        console.log("DATA:" + JSON.stringify(data));
-        return apiKeyboard.processKeyChanges(data);
-    }
-});
+    process.on('SIGINT', () => {
+        console.log("SIGINT");
+        cleanupProgram();
+    });
 
-const server = app.listen(3030);
+    process.on('exit', () => {
+        console.log("exit");
+        cleanupProgram();
+    });
 
-server.on('listening', () => console.log('Feathers REST API started at http://localhost:3030'));
+}
 
-process.on('SIGINT', () => {
-    console.log("SIGINT");
-    server.close();
-    apiKeyboard.keyboard.close();
-});
+startProgram();
 
-process.on('SIGTERM', () => {
-    console.log("SIGTERM");
-    server.close();
-    apiKeyboard.keyboard.close();
-});
-
-setTimeout(() => {
-    // calling this before the keyboard is connected will trigger errors
-    signalsInit(apiKeyboard);
-}, 1000);

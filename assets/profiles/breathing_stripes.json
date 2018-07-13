@@ -2,6 +2,7 @@
   "name": "Breathing Stripes",
   "description": "Some cool thing with stripes!",
   "enabledSignals": ["cpu_utilization"],
+  "uuid": "default",
   "defaultAnimations": {
     "en-US": [
       {
