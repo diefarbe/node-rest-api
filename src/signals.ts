@@ -4,13 +4,10 @@ import {
     Profile,
     Signal, SignalMapping,
     SignalProviderPlugin, StateChangeRequest, StateInfo
-    Signal,
-    SignalProviderPlugin,
 } from "./state";
 import {APIKeyboard} from "./keyboard";
 import * as math from "mathjs";
-import { APIKeyboard } from "./keyboard";
-import { Settings } from "settings";
+import {Settings} from "settings";
 
 const requirePath = require("require-path");
 
@@ -20,7 +17,7 @@ type EnabledSignal = {
     hook: { unhook: () => void } | null
 };
 
-let activeProfile: Profile;
+let activeProfile: Profile | null = null;
 
 let signalPlugins: SignalProviderPlugin[] = [];
 let enabledSignalPlugins: EnabledSignal[] = [];
@@ -78,11 +75,11 @@ let signalMappings: SignalMapping[] = [{
     fadeTime: "1"
 }];
 
-console.log(JSON.stringify(signalMappings[0]));
-
 export function signalsInit(_apiKeyboard: APIKeyboard, _settings: Settings) {
     apiKeyboard = _apiKeyboard;
     settings = _settings;
+
+    setupKeyboard();
 
     requirePath({
         path: "plugins",
@@ -99,8 +96,6 @@ export function signalsInit(_apiKeyboard: APIKeyboard, _settings: Settings) {
         .catch((errors: any) => {
             throw errors;
         });
-
-    setupKeyboard();
 }
 
 function setupKeyboard() {
@@ -108,7 +103,7 @@ function setupKeyboard() {
     const profile = settings.getProfiles()[currentSettings.profile]
 
     console.log("PROFILE:" + JSON.stringify(currentSettings));
-    apiKeyboard.processKeyChanges(profile.defaultAnimations[layout]);
+    setProfile(profile);
 }
 
 export function loadPlugin(plugin: SignalProviderPlugin) {
@@ -161,40 +156,42 @@ export function enableSignal(signal: PluginSignal) {
     enabledSignalPlugins.push(enabledSignal);
 }
 
-export function setProfile(profile: Profile) {
+export function setProfile(profile: Profile | null) {
     for (let signal of Object.assign([], enabledSignalPlugins)) {
         disableSignal(signal.pluginSignal);
     }
 
-    if (typeof profile.enabledSignals == "string") {
-        // we have a tag
-        for (let plugin of signalPlugins) {
-            for (let signal of plugin.signals) {
-                if (profile.enabledSignals == "all") {
-                    enableSignal(signal);
-                } else {
-                    for (let tag of signal.tags) {
-                        if (profile.enabledSignals == tag) {
+    if (profile != null) {
+        if (typeof profile.enabledSignals == "string") {
+            // we have a tag
+            for (let plugin of signalPlugins) {
+                for (let signal of plugin.signals) {
+                    if (profile.enabledSignals == "all") {
+                        enableSignal(signal);
+                    } else {
+                        for (let tag of signal.tags) {
+                            if (profile.enabledSignals == tag) {
+                                enableSignal(signal);
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            // we have a list of signals
+            for (let enabledSignal of profile.enabledSignals) {
+                for (let plugin of signalPlugins) {
+                    for (let signal of plugin.signals) {
+                        if (signal.name == enabledSignal) {
                             enableSignal(signal);
                         }
                     }
                 }
             }
         }
-    } else {
-        // we have a list of signals
-        for (let enabledSignal of profile.enabledSignals) {
-            for (let plugin of signalPlugins) {
-                for (let signal of plugin.signals) {
-                    if (signal.name == enabledSignal) {
-                        enableSignal(signal);
-                    }
-                }
-            }
-        }
-    }
 
-    apiKeyboard.processKeyChanges(profile.defaultAnimations[layout]);
+        apiKeyboard.processKeyChanges(profile.defaultAnimations[layout]);
+    }
 
     activeProfile = profile;
 }
@@ -224,13 +221,15 @@ function handleNewSignalValue(signal: string, value: Signal) {
         if (sig.signal == signal) {
             let lay = sig.layouts[layout];
             if (value == "nosignal") {
-                let changes: StateChangeRequest[] = [];
-                for (let group of lay.keyGroups) {
-                    for (let key of group) {
-                        changes.push(profileAnimation(key, activeProfile));
+                if (activeProfile != null) {
+                    let changes: StateChangeRequest[] = [];
+                    for (let group of lay.keyGroups) {
+                        for (let key of group) {
+                            changes.push(profileAnimation(key, activeProfile));
+                        }
                     }
+                    apiKeyboard.processKeyChanges(changes);
                 }
-                apiKeyboard.processKeyChanges(changes);
                 return;
             }
             let val = Math.max(Math.min(value, sig.max), sig.min);
@@ -254,7 +253,7 @@ function handleNewSignalValue(signal: string, value: Signal) {
                                     key: key,
                                     data: data
                                 });
-                            } else {
+                            } else if (activeProfile != null) {
                                 changes.push(profileAnimation(key, activeProfile));
                             }
                         }

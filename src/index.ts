@@ -51,7 +51,7 @@ async function startProgram() {
     function cleanupProgram() {
         server.close();
         apiKeyboard.close();
-        setProfile(null);
+        setProfile(null); // detaches from signal handlers
     }
 
     process.on('SIGINT', () => {
