@@ -1,5 +1,3 @@
-import {Hook} from "@feathersjs/feathers";
-
 export type ChannelInfo = {
     upHoldLevel?: number;
     downHoldLevel?: number;
@@ -128,5 +126,6 @@ export type Profile = {
     defaultAnimations: {
         [layout: string]: StateChangeRequest[];
     };
+    uuid: string;
     enabledSignals: string[] | string;
 };
