@@ -1,89 +1,97 @@
 import {Hook} from "@feathersjs/feathers";
 
 export type ChannelInfo = {
-  upHoldLevel?: number;
-  downHoldLevel?: number;
-  upMaximumLevel?: number;
-  downMinimumLevel?: number;
-  upHoldDelay?: number;
-  downHoldDelay?: number;
-  upIncrement?: number;
-  downDecrement?: number;
-  upIncrementDelay?: number;
-  downDecrementDelay?: number;
-  startDelay?: number;
-  effectId?: number;
+    upHoldLevel?: number;
+    downHoldLevel?: number;
+    upMaximumLevel?: number;
+    downMinimumLevel?: number;
+    upHoldDelay?: number;
+    downHoldDelay?: number;
+    upIncrement?: number;
+    downDecrement?: number;
+    upIncrementDelay?: number;
+    downDecrementDelay?: number;
+    startDelay?: number;
+    effectId?: number;
 
-  direction?: "inc" | "incDec" | "dec" | "decInc"
-  transition?: boolean;
+    direction?: "inc" | "incDec" | "dec" | "decInc"
+    transition?: boolean;
 }
 
 export type StateInfo = {
-  red: ChannelInfo,
-  green: ChannelInfo,
-  blue: ChannelInfo,
+    red: ChannelInfo,
+    green: ChannelInfo,
+    blue: ChannelInfo,
 }
 
 export type StateChangeRequest = {
-  key: string;
-  data: StateInfo;
+    key: string;
+    data: StateInfo;
 }
 
 export type Signal = number | "nosignal";
 
-export type SignalProviderPlugin = {
-  signals: {
+export type PluginSignal = {
     name: string;
     description?: string;
     tags: string[];
     source: SignalSource;
-  }[];
+};
+
+export type SignalProviderPlugin = {
+    signals: PluginSignal[];
 }
 
 export type SignalSource = PollingSource | PollingCallbackSource | HookSource;
 
 export type PollingSource = {
-  type: "polling",
-  interval: number, // how often to poll in seconds
-  poll: () => Signal,
+    type: "polling",
+    interval: number, // how often to poll in seconds
+    poll: () => Signal,
 };
 
 export type PollingCallbackSource = {
-  type: "pollingCallback",
-  interval: number, // how often to poll in seconds
-  poll: (callback: (signal: Signal) => void) => void,
+    type: "pollingCallback",
+    interval: number, // how often to poll in seconds
+    poll: (callback: (signal: Signal) => void) => void,
 }
 
 export type HookSource = {
-  type: "hook",
-  attach: (callback: (signal: Signal) => void) => void,
+    type: "hook",
+    attach: (callback: (signal: Signal) => void) => { unhook: () => void },
 };
 
 export type ChannelAnimation = {
-  // these are all numeric values, optionally using a math expression
+    // these are all numeric values, optionally using a math expression
 
-  upHoldLevel: string;
-  downHoldLevel: string;
+    upHoldLevel: string;
+    downHoldLevel: string;
 
-  upMaximumLevel: string;
-  downMinimumLevel: string;
+    upMaximumLevel: string;
+    downMinimumLevel: string;
 
-  upHoldDelay: string;
-  downHoldDelay: string;
+    upHoldDelay: string;
+    downHoldDelay: string;
 
-  upIncrement: string;
-  downDecrement: string;
+    upIncrement: string;
+    downDecrement: string;
+    
+    upIncrementDelay: string;
+    downDecrementDelay: string;
 
-  startDelay: string;
-  effectId: string;
+    startDelay: string;
+    effectId: string;
 
-  effectFlag: string;
+    effectFlag: string;
+
+    direction: string;
+    transition: string;
 };
 
 export type Animation = {
-  red: ChannelAnimation;
-  green: ChannelAnimation;
-  blue: ChannelAnimation;
+    red: ChannelAnimation;
+    green: ChannelAnimation;
+    blue: ChannelAnimation;
 };
 
 /**
@@ -92,33 +100,33 @@ export type Animation = {
  Each range maps a upper and lower bound of the signal value to a certain animation.
  */
 export type SignalMapping = {
-  signal: string; // the signal you're mapping
-  ranges: {
-    start: number;
-    startInclusive: boolean;
-    end: number;
-    endInclusive: boolean;
-    activatedAnimation: Animation | null; // the animation to use when the key is active, null to inherit the profile animation
-    notActivatedAnimation: Animation | null; // the animation to use when the key is not active, null to inherit the profile animation
-  }[];
-  layouts: {
-    [layout: string]: {
-      keyGroups: string[][];
-      mode: "all" | // all key groups get the same animation
-        "multi" | // key groups will progressively be activated with all being the same color
-        "multiSingle" | // only the highest key group will be activated
-        "multiSplit" // activated key groups will have the signal value <= their end range
-    }
-  };
-  fadeTime: string; // e.g. "start - end"
+    signal: string; // the signal you're mapping
+    ranges: {
+        start: number;
+        startInclusive: boolean;
+        end: number;
+        endInclusive: boolean;
+        activatedAnimation: Animation | null; // the animation to use when the key is active, null to inherit the profile animation
+        notActivatedAnimation: Animation | null; // the animation to use when the key is not active, null to inherit the profile animation
+    }[];
+    layouts: {
+        [layout: string]: {
+            keyGroups: string[][];
+            mode: "all" | // all key groups get the same animation
+                "multi" | // key groups will progressively be activated with all being the same color
+                "multiSingle" | // only the highest key group will be activated
+                "multiSplit" // activated key groups will have the signal value <= their end range
+        }
+    };
+    fadeTime: string; // e.g. "start - end"
+    pollOverride: number;
 };
 
 export type Profile = {
-  defaultAnimations: {
-    [layout: string]: {
-      key: string;
-      animation: Animation;
-    }[];
-  };
-  enabledSignals: string[] | string;
+    name: string;
+    description?: string;
+    defaultAnimations: {
+        [layout: string]: StateChangeRequest[];
+    };
+    enabledSignals: string[] | string;
 };

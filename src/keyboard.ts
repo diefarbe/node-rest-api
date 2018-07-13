@@ -1,9 +1,9 @@
+import {Keyboard, KeyInfo, KeyState} from "das/dist";
 
-import { Keyboard, KeyInfo, KeyState } from "das/dist";
 var usbDetect = require('usb-detection');
-import { StateInfo, ChannelInfo, StateChangeRequest } from "./state";
-import { KeyModel } from "das/dist/internal/models";
-import { ChannelState } from "das/dist/channel-state";
+import {StateInfo, ChannelInfo, StateChangeRequest} from "./state";
+import {KeyModel} from "das/dist/internal/models";
+import {ChannelState} from "das/dist/channel-state";
 
 export class APIKeyboard {
 
@@ -49,9 +49,6 @@ export class APIKeyboard {
             this.initalizeKeyboard()
 
             console.log("Got that keyboard");
-
-            const defaultProfile = require("../assets/profiles/breathing_stripes.json")
-            this.processKeyChanges(defaultProfile.profileData)
 
             this.isInitalized = true;
         } catch {

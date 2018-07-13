@@ -16,12 +16,14 @@
     "das": "../node-lib/",
     "require-path": "^0.3.0",
     "usb-detection": "^3.1.0",
-    "systeminformation": "^3.42.3"
+    "systeminformation": "^3.42.3",
+    "mathjs": "^5.0.2"
   },
   "devDependencies": {
     "@types/feathersjs__express": "^1.1.4",
     "@types/feathersjs__feathers": "^3.0.4",
     "ts-node": "^7.0.0",
-    "typescript": "^2.9.2"
+    "typescript": "^2.9.2",
+    "@types/mathjs": "^4.4.0"
   }
 }

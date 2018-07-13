@@ -41,6 +41,7 @@ module.exports = {
     signals: [{
         name: "cpu_utilization",
         description: "The amount of CPU used from 0-100.",
+        tags: [],
         source: {
             type: "polling",
             interval: 1,
@@ -52,6 +53,7 @@ module.exports = {
     }, {
         name: "memory_utilization",
         description: "The amount of memory used from 0-100.",
+        tags: [],
         source: {
             type: "pollingCallback",
             interval: 1,

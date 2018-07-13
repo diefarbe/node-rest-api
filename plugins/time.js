@@ -7,6 +7,7 @@ module.exports = {
     signals: [{
         name: "time_ofday",
         description: "The number of seconds since midnight.",
+        tags: [],
         source: {
             type: "polling",
             interval: 1,
