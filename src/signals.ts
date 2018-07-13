@@ -4,10 +4,10 @@ import {
     Profile,
     Signal, SignalMapping,
     SignalProviderPlugin, StateChangeRequest, StateInfo
-} from "./state";
-import {APIKeyboard} from "./keyboard";
+} from "./types";
+import {KeyboardModule} from "./modules/keyboard";
 import * as math from "mathjs";
-import {Settings} from "settings";
+import {SettingsModule} from "./modules/settings";
 
 const requirePath = require("require-path");
 
@@ -24,10 +24,10 @@ let enabledSignalPlugins: EnabledSignal[] = [];
 
 let signals = new Map<string, Signal>();
 
-let layout = "en-US"; // changing this at runtime requires calling `setProfile(activeProfile)`
+let layout: string;
 
-let apiKeyboard: APIKeyboard;
-let settings: Settings;
+let apiKeyboard: KeyboardModule;
+let settings: SettingsModule;
 
 let signalMappings: SignalMapping[] = [{
     signal: "cpu_utilization",
@@ -75,9 +75,11 @@ let signalMappings: SignalMapping[] = [{
     fadeTime: "1"
 }];
 
-export function signalsInit(_apiKeyboard: APIKeyboard, _settings: Settings) {
+export function signalsInit(_apiKeyboard: KeyboardModule, _settings: SettingsModule) {
     apiKeyboard = _apiKeyboard;
     settings = _settings;
+
+    layout = settings.getLayout();
 
     setupKeyboard();
 

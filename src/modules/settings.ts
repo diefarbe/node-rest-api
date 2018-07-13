@@ -1,23 +1,26 @@
 
 
 import * as fs from "fs";
-import { StateChangeRequest, Profile } from "state";
-import { resolve } from "path";
+import { StateChangeRequest, Profile } from "types";
 
-export class Settings {
+export class SettingsModule {
 
     private static readonly homedir = require('os').homedir();
-    private static readonly configDirectory = Settings.homedir + "/.config"
-    private static readonly ourDirectory = Settings.configDirectory + "/diefarbe";
+    private static readonly configDirectory = SettingsModule.homedir + "/.config"
+    private static readonly ourDirectory = SettingsModule.configDirectory + "/diefarbe";
 
-    private static readonly profileDirectory = Settings.ourDirectory + "/profiles";
-    private static readonly settingsJSON = Settings.ourDirectory + "/settings.json";
+    private static readonly profileDirectory = SettingsModule.ourDirectory + "/profiles";
+    private static readonly settingsJSON = SettingsModule.ourDirectory + "/settings.json";
+
+    private static readonly DefaultSettings = {
+        profile: "default",
+        layout: "en-US",
+    }
 
     private settings: { [key: string]: string } = {};
     private profiles: { [key: string]: Profile } = {};
 
     async init() {
-
         const shouldSetup = await this.shouldDoInitialSetup();
         if (shouldSetup) {
             await this.initialSetup();
@@ -33,11 +36,15 @@ export class Settings {
         return this.settings;
     }
 
+    getLayout() {
+        return this.settings.layout;
+    }
+
     public pushSetting(data: any) {
         for (const key of Object.keys(data)) {
             this.settings[key] = data[key];
         }
-        fs.writeFile(Settings.settingsJSON, JSON.stringify(this.settings), (err) => {
+        fs.writeFile(SettingsModule.settingsJSON, JSON.stringify(this.settings), (err) => {
             if (err) throw err;
         });
     }
@@ -55,7 +62,7 @@ export class Settings {
                 },
             }
             this.profiles[uuid] = profile;
-            fs.writeFile(Settings.profileDirectory + "/" + uuid + ".json", JSON.stringify(profile), (err) => {
+            fs.writeFile(SettingsModule.profileDirectory + "/" + uuid + ".json", JSON.stringify(profile), (err) => {
                 if (err) reject();
                 resolve(profile);
             });
@@ -65,18 +72,18 @@ export class Settings {
 
     public deleteProfile(id: string) {
         delete this.profiles[id];
-        fs.unlinkSync(Settings.profileDirectory + "/" + id + ".json")
+        fs.unlinkSync(SettingsModule.profileDirectory + "/" + id + ".json")
         return { id }
     }
 
     private shouldDoInitialSetup() {
         return new Promise<boolean>((resolve, reject) => {
-            fs.access(Settings.configDirectory, fs.constants.F_OK, (err) => {
+            fs.access(SettingsModule.configDirectory, fs.constants.F_OK, (err) => {
                 if (err) {
-                    fs.mkdirSync(Settings.configDirectory)
+                    fs.mkdirSync(SettingsModule.configDirectory)
                 }
 
-                fs.access(Settings.ourDirectory, fs.constants.F_OK, (err) => {
+                fs.access(SettingsModule.ourDirectory, fs.constants.F_OK, (err) => {
                     if (err) {
                         resolve(true)
                     } else {
@@ -90,29 +97,30 @@ export class Settings {
 
     private initialSetup() {
         return new Promise<void>((resolve, reject) => {
-            fs.mkdirSync(Settings.ourDirectory)
-            fs.mkdirSync(Settings.profileDirectory)
-            fs.writeFile(Settings.settingsJSON, JSON.stringify({ profile: "default" }), (err) => {
-                if (err) reject(err);
-                console.log('Initial setup complete');
-                resolve();
-            });
+            fs.mkdirSync(SettingsModule.ourDirectory)
+            fs.mkdirSync(SettingsModule.profileDirectory)
+            fs.writeFile(SettingsModule.settingsJSON,
+                JSON.stringify(SettingsModule.DefaultSettings), (err) => {
+                    if (err) reject(err);
+                    console.log('Settings: Initial setup complete');
+                    resolve();
+                });
         })
     }
 
     private readSettings() {
         return new Promise<void>((resolve, reject) => {
-            fs.readFile(Settings.settingsJSON, (err, data) => {
+            fs.readFile(SettingsModule.settingsJSON, (err, data) => {
                 this.settings = JSON.parse(data.toString("utf8"));
 
-                const paths = fs.readdirSync(Settings.profileDirectory);
+                const paths = fs.readdirSync(SettingsModule.profileDirectory);
                 for (const path of paths) {
                     if (path.endsWith(".json")) {
-                        console.log(Settings.profileDirectory + "/" + path);
-                        this.loadProfileIntoMemory(Settings.profileDirectory + "/" + path);
+                        console.log(SettingsModule.profileDirectory + "/" + path);
+                        this.loadProfileIntoMemory(SettingsModule.profileDirectory + "/" + path);
                     }
                 }
-                this.profiles["default"] = require("../assets/profiles/breathing_stripes.json");
+                this.profiles["default"] = require("../../assets/profiles/breathing_stripes.json");
 
                 resolve();
             });

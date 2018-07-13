@@ -1,7 +1,7 @@
-import { APIKeyboard } from "keyboard";
-import { Settings } from "settings";
+import { KeyboardModule } from "../modules/keyboard";
+import { SettingsModule } from "../modules/settings";
 
-export function init(apiKeyboard: APIKeyboard, settings: Settings) {
+export function init(apiKeyboard: KeyboardModule, settings: SettingsModule) {
 
     let hasKeyboard = apiKeyboard.hasKeyboard();
 

@@ -1,8 +1,9 @@
-import { APIKeyboard } from "keyboard";
-import { Settings } from "settings";
+import { KeyboardModule } from "../modules/keyboard";
+import { SettingsModule } from "../modules/settings";
+import { StateModule } from "../modules/state";
 
 
-export function init(apiKeyboard: APIKeyboard, settings: Settings) {
+export function init(apiKeyboard: KeyboardModule, settings: SettingsModule, state: StateModule) {
 
     return {
         async find() {
@@ -14,11 +15,11 @@ export function init(apiKeyboard: APIKeyboard, settings: Settings) {
             return profiles[key];
         },
         async create(data: any) {
-            const profile = await settings.saveProfile(data, apiKeyboard.getAllKeyData());
+            const profile = settings.saveProfile(data, state.getAllKeyData());
             return Promise.resolve(profile);
         },
         async remove(id: string) {
-            const profile = await settings.deleteProfile(id);
+            const profile = settings.deleteProfile(id);
             return Promise.resolve(profile);
         }
     }
