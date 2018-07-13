@@ -110,10 +110,10 @@ export type SignalMapping = {
     layouts: {
         [layout: string]: {
             keyGroups: string[][];
-            mode: "all" | // all key groups get the same animation
-                "multi" | // key groups will progressively be activated with all being the same color
-                "multiSingle" | // only the highest key group will be activated
-                "multiSplit" // activated key groups will have the signal value <= their end range
+            mode: "all" | // all key groups get the same animation (|g|g|g| -> |y|y|y| -> |r|r|r|)
+                "multi" | // key groups will progressively be activated, all having the same animation (|g|.|.| -> |y|y|.| -> |r|r|r|)
+                "multiSingle" | // only the highest key group will be activated (|g|.|.| -> |.|y|.| -> |.|.|r|)
+                "multiSplit" // activated key groups will have the signal value <= their end range (|g|.|.| -> |g|y|.| -> |g|y|r|)
         }
     };
     fadeTime: string; // e.g. "start - end"
