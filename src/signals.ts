@@ -1,4 +1,5 @@
 import * as math from "mathjs";
+import { StateModule } from "modules/state";
 import {KeyboardModule} from "./modules/keyboard";
 import {SettingsModule} from "./modules/settings";
 import {
@@ -28,6 +29,7 @@ let layout: string;
 
 let apiKeyboard: KeyboardModule;
 let settings: SettingsModule;
+let state: StateModule;
 
 const signalMappings: SignalMapping[] = [{
     signal: "cpu_utilization",
@@ -75,9 +77,10 @@ const signalMappings: SignalMapping[] = [{
     fadeTime: "1"
 }];
 
-export function signalsInit(_apiKeyboard: KeyboardModule, _settings: SettingsModule) {
+export function signalsInit(_apiKeyboard: KeyboardModule, _settings: SettingsModule, _state: StateModule) {
     apiKeyboard = _apiKeyboard;
     settings = _settings;
+    state = _state;
 
     layout = settings.getLayout();
 
@@ -103,8 +106,6 @@ export function signalsInit(_apiKeyboard: KeyboardModule, _settings: SettingsMod
 function setupKeyboard() {
     const currentSettings = settings.getSettings();
     const profile = settings.getProfiles()[currentSettings.profile];
-
-    console.log("PROFILE:" + JSON.stringify(currentSettings));
     setProfile(profile);
 }
 
@@ -116,7 +117,7 @@ export function loadPlugin(plugin: SignalProviderPlugin) {
 export function disableSignal(signal: PluginSignal) {
     for (let i = 0; i < enabledSignalPlugins.length; i++) {
         const enabled = enabledSignalPlugins[i];
-        if (enabled.pluginSignal == signal) {
+        if (enabled.pluginSignal === signal) {
             if (enabled.timer != null) { clearTimeout(enabled.timer); }
             if (enabled.hook != null) { enabled.hook.unhook(); }
             enabledSignalPlugins.splice(i, 1);
@@ -164,15 +165,15 @@ export function setProfile(profile: Profile | null) {
     }
 
     if (profile != null) {
-        if (typeof profile.enabledSignals == "string") {
+        if (typeof profile.enabledSignals === "string") {
             // we have a tag
             for (const plugin of signalPlugins) {
                 for (const signal of plugin.signals) {
-                    if (profile.enabledSignals == "all") {
+                    if (profile.enabledSignals === "all") {
                         enableSignal(signal);
                     } else {
                         for (const tag of signal.tags) {
-                            if (profile.enabledSignals == tag) {
+                            if (profile.enabledSignals === tag) {
                                 enableSignal(signal);
                             }
                         }
@@ -184,7 +185,7 @@ export function setProfile(profile: Profile | null) {
             for (const enabledSignal of profile.enabledSignals) {
                 for (const plugin of signalPlugins) {
                     for (const signal of plugin.signals) {
-                        if (signal.name == enabledSignal) {
+                        if (signal.name === enabledSignal) {
                             enableSignal(signal);
                         }
                     }
@@ -192,10 +193,15 @@ export function setProfile(profile: Profile | null) {
             }
         }
 
-        apiKeyboard.processKeyChanges(profile.defaultAnimations[layout]);
+        makeKeyChanges(profile.defaultAnimations[layout]);
     }
 
     activeProfile = profile;
+}
+
+function makeKeyChanges(changes: StateChangeRequest[]) {
+    state.processKeyChanges(changes);
+    apiKeyboard.processKeyChanges(changes);
 }
 
 /**
@@ -205,7 +211,7 @@ export function setProfile(profile: Profile | null) {
  */
 function signalValueUpdate(signal: string, value: Signal) {
     const currentValue = signals.get(signal);
-    if (currentValue != value) {
+    if (currentValue !== value) {
         signals.set(signal, value);
         handleNewSignalValue(signal, value);
     }
@@ -220,9 +226,9 @@ function handleNewSignalValue(signal: string, value: Signal) {
     console.log(signal + ":" + value);
 
     for (const sig of signalMappings) {
-        if (sig.signal == signal) {
+        if (sig.signal === signal) {
             const lay = sig.layouts[layout];
-            if (value == "nosignal") {
+            if (value === "nosignal") {
                 if (activeProfile != null) {
                     const changes: StateChangeRequest[] = [];
                     for (const group of lay.keyGroups) {
@@ -230,7 +236,7 @@ function handleNewSignalValue(signal: string, value: Signal) {
                             changes.push(profileAnimation(key, activeProfile));
                         }
                     }
-                    apiKeyboard.processKeyChanges(changes);
+                    makeKeyChanges(changes);
                 }
                 return;
             }
@@ -260,7 +266,7 @@ function handleNewSignalValue(signal: string, value: Signal) {
                             }
                         }
                     }
-                    apiKeyboard.processKeyChanges(changes);
+                    makeKeyChanges(changes);
                     break;
                 case "multi":
                     throw new Error("not implemented");
@@ -280,7 +286,7 @@ function handleNewSignalValue(signal: string, value: Signal) {
 
 function profileAnimation(key: string, profile: Profile): StateChangeRequest {
     for (const change of profile.defaultAnimations[layout]) {
-        if (change.key == key) {
+        if (change.key === key) {
             return change;
         }
     }
@@ -300,20 +306,20 @@ function signalAnimationHelper(channelAnimation: ChannelAnimation, value: number
         signal: value
     };
     return {
-        upHoldLevel: channelAnimation.upHoldLevel == undefined ? undefined : math.eval(channelAnimation.upHoldLevel, scope),
-        downHoldLevel: channelAnimation.downHoldLevel == undefined ? undefined : math.eval(channelAnimation.downHoldLevel, scope),
-        upMaximumLevel: channelAnimation.upMaximumLevel == undefined ? undefined : math.eval(channelAnimation.upMaximumLevel, scope),
-        downMinimumLevel: channelAnimation.downMinimumLevel == undefined ? undefined : math.eval(channelAnimation.downMinimumLevel, scope),
-        upHoldDelay: channelAnimation.upHoldDelay == undefined ? undefined : math.eval(channelAnimation.upHoldDelay, scope),
-        downHoldDelay: channelAnimation.downHoldDelay == undefined ? undefined : math.eval(channelAnimation.downHoldDelay, scope),
-        upIncrement: channelAnimation.upIncrement == undefined ? undefined : math.eval(channelAnimation.upIncrement, scope),
-        downDecrement: channelAnimation.downDecrement == undefined ? undefined : math.eval(channelAnimation.downDecrement, scope),
-        upIncrementDelay: channelAnimation.upIncrementDelay == undefined ? undefined : math.eval(channelAnimation.upIncrementDelay, scope),
-        downDecrementDelay: channelAnimation.downDecrementDelay == undefined ? undefined : math.eval(channelAnimation.downDecrementDelay, scope),
-        startDelay: channelAnimation.startDelay == undefined ? undefined : math.eval(channelAnimation.startDelay, scope),
-        effectId: channelAnimation.effectId == undefined ? undefined : math.eval(channelAnimation.effectId, scope),
-        direction: channelAnimation.direction == undefined ? undefined : math.eval(channelAnimation.direction, scope),
-        transition: channelAnimation.transition == undefined ? undefined : math.eval(channelAnimation.transition, scope),
+        upHoldLevel: channelAnimation.upHoldLevel === undefined ? undefined : math.eval(channelAnimation.upHoldLevel, scope),
+        downHoldLevel: channelAnimation.downHoldLevel === undefined ? undefined : math.eval(channelAnimation.downHoldLevel, scope),
+        upMaximumLevel: channelAnimation.upMaximumLevel === undefined ? undefined : math.eval(channelAnimation.upMaximumLevel, scope),
+        downMinimumLevel: channelAnimation.downMinimumLevel === undefined ? undefined : math.eval(channelAnimation.downMinimumLevel, scope),
+        upHoldDelay: channelAnimation.upHoldDelay === undefined ? undefined : math.eval(channelAnimation.upHoldDelay, scope),
+        downHoldDelay: channelAnimation.downHoldDelay === undefined ? undefined : math.eval(channelAnimation.downHoldDelay, scope),
+        upIncrement: channelAnimation.upIncrement === undefined ? undefined : math.eval(channelAnimation.upIncrement, scope),
+        downDecrement: channelAnimation.downDecrement === undefined ? undefined : math.eval(channelAnimation.downDecrement, scope),
+        upIncrementDelay: channelAnimation.upIncrementDelay === undefined ? undefined : math.eval(channelAnimation.upIncrementDelay, scope),
+        downDecrementDelay: channelAnimation.downDecrementDelay === undefined ? undefined : math.eval(channelAnimation.downDecrementDelay, scope),
+        startDelay: channelAnimation.startDelay === undefined ? undefined : math.eval(channelAnimation.startDelay, scope),
+        effectId: channelAnimation.effectId === undefined ? undefined : math.eval(channelAnimation.effectId, scope),
+        direction: channelAnimation.direction === undefined ? undefined : math.eval(channelAnimation.direction, scope),
+        transition: channelAnimation.transition === undefined ? undefined : math.eval(channelAnimation.transition, scope),
     };
 }
 

@@ -86,6 +86,7 @@ export class KeyboardModule {
             console.log("Got keyboard");
 
             this.isInitalized = true;
+            this.connectionChanged(true);
         } catch {
             console.log("Failed to take over keyboard");
             this.isInitalized = false;
@@ -94,6 +95,8 @@ export class KeyboardModule {
 
     private cleanupKeyboardDisconnect() {
         this.isInitalized = false;
+        this.connectionChanged(false);
+
     }
 
     private applyKeyboardChanges(changes: StateChangeRequest[]) {

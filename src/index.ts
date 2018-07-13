@@ -60,7 +60,7 @@ async function startProgram() {
     // If not, wait for one to connect from here on out.
     apiKeyboard.init();
 
-    signalsInit(apiKeyboard, settings);
+    signalsInit(apiKeyboard, settings, state);
 
     app.use("info", InitEndpoint.init(apiKeyboard, settings));
     app.use("profiles", ProfileEndpoint.init(apiKeyboard, settings, state));
@@ -77,12 +77,10 @@ async function startProgram() {
     }
 
     process.on("SIGINT", () => {
-        console.log("SIGINT");
         cleanupProgram();
     });
 
     process.on("exit", () => {
-        console.log("exit");
         cleanupProgram();
     });
 
