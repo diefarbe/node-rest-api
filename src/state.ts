@@ -64,28 +64,26 @@ export type HookSource = {
 export type ChannelAnimation = {
     // these are all numeric values, optionally using a math expression
 
-    upHoldLevel: string;
-    downHoldLevel: string;
+    upHoldLevel?: string;
+    downHoldLevel?: string;
 
-    upMaximumLevel: string;
-    downMinimumLevel: string;
+    upMaximumLevel?: string;
+    downMinimumLevel?: string;
 
-    upHoldDelay: string;
-    downHoldDelay: string;
+    upHoldDelay?: string;
+    downHoldDelay?: string;
 
-    upIncrement: string;
-    downDecrement: string;
+    upIncrement?: string;
+    downDecrement?: string;
     
-    upIncrementDelay: string;
-    downDecrementDelay: string;
+    upIncrementDelay?: string;
+    downDecrementDelay?: string;
 
-    startDelay: string;
-    effectId: string;
+    startDelay?: string;
+    effectId?: string;
 
-    effectFlag: string;
-
-    direction: string;
-    transition: string;
+    direction?: string;
+    transition?: string;
 };
 
 export type Animation = {
@@ -101,6 +99,8 @@ export type Animation = {
  */
 export type SignalMapping = {
     signal: string; // the signal you're mapping
+    min: 0,
+    max: 100,
     ranges: {
         start: number;
         startInclusive: boolean;
@@ -119,7 +119,6 @@ export type SignalMapping = {
         }
     };
     fadeTime: string; // e.g. "start - end"
-    pollOverride: number;
 };
 
 export type Profile = {

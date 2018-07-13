@@ -161,8 +161,8 @@ export class APIKeyboard {
 
     private internalSendKeyData(key: KeyModel, channel: "red" | "green" | "blue", data: ChannelInfo) {
 
-        console.log("Parsing a " + channel + " channel:");
-        console.log(JSON.stringify(data, null, 4));
+        //console.log("Parsing a " + channel + " channel:");
+        //console.log(JSON.stringify(data, null, 4));
 
         let aState = new ChannelState(key, channel)
             .setUpHoldLevel(data.upHoldLevel) //

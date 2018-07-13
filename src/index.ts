@@ -63,7 +63,12 @@ process.on('SIGINT', () => {
     console.log("SIGINT");
     server.close();
     apiKeyboard.keyboard.close();
-    setProfile(null);
+});
+
+process.on('SIGTERM', () => {
+    console.log("SIGTERM");
+    server.close();
+    apiKeyboard.keyboard.close();
 });
 
 setTimeout(() => {

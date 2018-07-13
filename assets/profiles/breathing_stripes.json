@@ -1,7 +1,7 @@
 {
   "name": "Breathing Stripes",
   "description": "Some cool thing with stripes!",
-  "enabledSignals": "all",
+  "enabledSignals": ["cpu_utilization"],
   "defaultAnimations": {
     "en-US": [
       {
