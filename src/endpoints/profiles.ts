@@ -1,8 +1,7 @@
 import { KeyboardModule } from "../modules/keyboard";
 import { SettingsModule } from "../modules/settings";
-import { StateModule } from "../modules/state";
 
-export function init(apiKeyboard: KeyboardModule, settings: SettingsModule, state: StateModule) {
+export function init(keyboard: KeyboardModule, settings: SettingsModule) {
 
     return {
         async find() {
@@ -14,7 +13,7 @@ export function init(apiKeyboard: KeyboardModule, settings: SettingsModule, stat
             return profiles[key];
         },
         async create(data: any) {
-            const profile = settings.saveProfile(data, state.getAllKeyData());
+            const profile = settings.saveProfile(data, keyboard.getAllKeyData());
             return Promise.resolve(profile);
         },
         async remove(id: string) {

@@ -3,7 +3,6 @@ import * as KeysEndpoint from "./endpoints/keys";
 import * as ProfileEndpoint from "./endpoints/profiles";
 import { KeyboardModule } from "./modules/keyboard";
 import { SettingsModule } from "./modules/settings";
-import { StateModule } from "./modules/state";
 import { setProfile, signalsInit } from "./signals";
 import {
     HookSource,
@@ -45,34 +44,27 @@ async function startProgram() {
 
     // load or create our settings for the first time
     await settings.init();
-
-    let state: StateModule;
     
     // setup a keyboard object
-    const apiKeyboard = new KeyboardModule(settings);
-
-    // create our state store
-    state = new StateModule(settings, apiKeyboard);
-    let syncTimer = setInterval(() => state.sync(), 1000); // sync every second
+    const keyboard = new KeyboardModule(settings);
 
     // Start connecting to the keyboard (if one exists)
     // If not, wait for one to connect from here on out.
-    apiKeyboard.init();
+    keyboard.init();
 
-    signalsInit(settings, state);
+    signalsInit(settings, keyboard);
 
-    app.use("info", InitEndpoint.init(apiKeyboard, settings));
-    app.use("profiles", ProfileEndpoint.init(apiKeyboard, settings, state));
-    app.use("keys", KeysEndpoint.init(apiKeyboard, settings, state));
+    app.use("info", InitEndpoint.init(keyboard, settings));
+    app.use("profiles", ProfileEndpoint.init(keyboard, settings));
+    app.use("keys", KeysEndpoint.init(keyboard, settings));
 
     const server = app.listen(3030);
 
     server.on("listening", () => console.log("Feathers REST API started at http://localhost:3030"));
 
     function cleanupProgram() {
-        clearTimeout(syncTimer);
         server.close();
-        apiKeyboard.close();
+        keyboard.close();
         setProfile(null); // detaches from signal handlers
     }
 

@@ -1,5 +1,4 @@
 import * as math from "mathjs";
-import { StateModule } from "modules/state";
 import { KeyboardModule } from "./modules/keyboard";
 import { SettingsModule } from "./modules/settings";
 import {
@@ -28,7 +27,7 @@ const signals = new Map<string, Signal>();
 let layout: string;
 
 let settings: SettingsModule;
-let state: StateModule;
+let keyboard: KeyboardModule;
 
 const signalMappings: SignalMapping[] = [{
     signal: "cpu_utilization",
@@ -76,9 +75,9 @@ const signalMappings: SignalMapping[] = [{
     fadeTime: "1"
 }];
 
-export function signalsInit(_settings: SettingsModule, _state: StateModule) {
+export function signalsInit(_settings: SettingsModule, _keyboard: KeyboardModule) {
     settings = _settings;
-    state = _state;
+    keyboard = _keyboard;
 
     layout = settings.getLayout();
 
@@ -195,7 +194,7 @@ export function setProfile(profile: Profile | null) {
             }
         }
 
-        state.processKeyChanges(profile.defaultAnimations[layout]);
+        keyboard.processKeyChanges(profile.defaultAnimations[layout]);
     }
 
     activeProfile = profile;
@@ -233,7 +232,7 @@ function handleNewSignalValue(signal: string, value: Signal) {
                             changes.push(profileAnimation(key, activeProfile));
                         }
                     }
-                    state.processKeyChanges(changes);
+                    keyboard.processKeyChanges(changes);
                 }
                 return;
             }
@@ -263,7 +262,7 @@ function handleNewSignalValue(signal: string, value: Signal) {
                             }
                         }
                     }
-                    state.processKeyChanges(changes);
+                    keyboard.processKeyChanges(changes);
                     break;
                 case "multi":
                     throw new Error("not implemented");
