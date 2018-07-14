@@ -17,7 +17,13 @@ interface EnabledSignal {
     hook: { unhook: () => void } | null;
 }
 
-let activeProfile: Profile | null = null;
+const NULL_PROFILE: Profile = {
+    name: "NULL",
+    uuid: "null",
+    enabledSignals: [],
+    defaultAnimations: {}
+};
+let activeProfile: Profile = NULL_PROFILE;
 
 const signalPlugins: SignalProviderPlugin[] = [];
 const enabledSignalPlugins: EnabledSignal[] = [];
@@ -29,6 +35,7 @@ let layout: string;
 let settings: SettingsModule;
 let keyboard: KeyboardModule;
 
+// TODO ensure no gaps in ranges and they fall between min and max
 const signalMappings: SignalMapping[] = [{
     signal: "cpu_utilization",
     min: 0,
@@ -69,7 +76,7 @@ const signalMappings: SignalMapping[] = [{
                 ["9"],
                 ["0"],
             ],
-            mode: "all"
+            mode: "multi"
         }
     },
     fadeTime: "1"
@@ -161,41 +168,41 @@ export function enableSignal(signal: PluginSignal) {
 }
 
 export function setProfile(profile: Profile | null) {
+    if (profile == null) profile = NULL_PROFILE;
+
     for (const signal of Object.assign([], enabledSignalPlugins)) {
         disableSignal(signal.pluginSignal);
     }
 
-    if (profile != null) {
-        if (typeof profile.enabledSignals === "string") {
-            // we have a tag
-            for (const plugin of signalPlugins) {
-                for (const signal of plugin.signals) {
-                    if (profile.enabledSignals === "all") {
-                        enableSignal(signal);
-                    } else {
-                        for (const tag of signal.tags) {
-                            if (profile.enabledSignals === tag) {
-                                enableSignal(signal);
-                            }
-                        }
-                    }
-                }
-            }
-        } else {
-            // we have a list of signals
-            for (const enabledSignal of profile.enabledSignals) {
-                for (const plugin of signalPlugins) {
-                    for (const signal of plugin.signals) {
-                        if (signal.name === enabledSignal) {
+    if (typeof profile.enabledSignals === "string") {
+        // we have a tag
+        for (const plugin of signalPlugins) {
+            for (const signal of plugin.signals) {
+                if (profile.enabledSignals === "all") {
+                    enableSignal(signal);
+                } else {
+                    for (const tag of signal.tags) {
+                        if (profile.enabledSignals === tag) {
                             enableSignal(signal);
                         }
                     }
                 }
             }
         }
-
-        keyboard.processKeyChanges(profile.defaultAnimations[layout]);
+    } else {
+        // we have a list of signals
+        for (const enabledSignal of profile.enabledSignals) {
+            for (const plugin of signalPlugins) {
+                for (const signal of plugin.signals) {
+                    if (signal.name === enabledSignal) {
+                        enableSignal(signal);
+                    }
+                }
+            }
+        }
     }
+
+    keyboard.processKeyChanges(profile.defaultAnimations[layout]);
 
     activeProfile = profile;
 }
@@ -224,57 +231,87 @@ function handleNewSignalValue(signal: string, value: Signal) {
     for (const sig of signalMappings) {
         if (sig.signal === signal) {
             const lay = sig.layouts[layout];
+
+            // if no signal, inherit the profile animation
             if (value === "nosignal") {
-                if (activeProfile != null) {
-                    const changes: StateChangeRequest[] = [];
-                    for (const group of lay.keyGroups) {
-                        for (const key of group) {
-                            changes.push(profileAnimation(key, activeProfile));
-                        }
+                const changes: StateChangeRequest[] = [];
+                for (const group of lay.keyGroups) {
+                    for (const key of group) {
+                        changes.push(profileAnimation(key, activeProfile));
                     }
-                    keyboard.processKeyChanges(changes);
                 }
+                keyboard.processKeyChanges(changes);
                 return;
             }
+
+            // ensure the signal value is within range
             const val = Math.max(Math.min(value, sig.max), sig.min);
-            switch (lay.mode) {
-                case "all":
-                    let data: StateInfo | null = null;
-                    for (const range of sig.ranges) {
-                        if (((range.start <= val && range.startInclusive) || (range.start < val && !range.startInclusive)) &&
-                            ((val <= range.end && range.endInclusive) || (val < range.end && !range.endInclusive))) {
-                            if (range.activatedAnimation != null) {
-                                data = signalAnimation(range.activatedAnimation, val);
-                            }
+
+            // switch on the design
+            if (lay.mode == "all") {
+                // determine the animation for all keys
+                let data: StateInfo | null = null;
+                for (const range of sig.ranges) {
+                    if (((range.start <= val && range.startInclusive) || (range.start < val && !range.startInclusive)) &&
+                        ((val <= range.end && range.endInclusive) || (val < range.end && !range.endInclusive))) {
+                        if (range.activatedAnimation != null) {
+                            data = signalAnimation(range.activatedAnimation, val);
                         }
                     }
-                    console.log(JSON.stringify(data));
-                    const changes: StateChangeRequest[] = [];
-                    for (const group of lay.keyGroups) {
-                        for (const key of group) {
-                            if (data != null) {
-                                changes.push({
-                                    key,
-                                    data
-                                });
-                            } else if (activeProfile != null) {
-                                changes.push(profileAnimation(key, activeProfile));
-                            }
+                }
+                if (data == null) throw new Error("ranges invalid");
+
+                // send them to the keys
+                const changes: StateChangeRequest[] = [];
+                for (const group of lay.keyGroups) {
+                    for (const key of group) {
+                        changes.push({
+                            key,
+                            data
+                        });
+                    }
+                }
+                keyboard.processKeyChanges(changes);
+            } else if (lay.mode == "multi") {
+                // determine the animation for all activated keys
+                let data: StateInfo | null = null;
+                for (const range of sig.ranges) {
+                    if (((range.start <= val && range.startInclusive) || (range.start < val && !range.startInclusive)) &&
+                        ((val <= range.end && range.endInclusive) || (val < range.end && !range.endInclusive))) {
+                        if (range.activatedAnimation != null) {
+                            data = signalAnimation(range.activatedAnimation, val);
                         }
                     }
-                    keyboard.processKeyChanges(changes);
-                    break;
-                case "multi":
-                    throw new Error("not implemented");
-                    break;
-                case "multiSingle":
-                    throw new Error("not implemented");
-                    break;
-                case "multiSplit":
-                    throw new Error("not implemented");
-                    break;
-                default:
-                    assertNever(lay.mode);
+                }
+                if (data == null) throw new Error("ranges invalid");
+
+                const changes: StateChangeRequest[] = [];
+
+                // get colors for activated keys
+                const numKeysActivated = Math.floor(lay.keyGroups.length * val / sig.max);
+                console.log("numKeysActivated: " + numKeysActivated);
+                for (let i = 0; i < numKeysActivated; i++) {
+                    for (const key of lay.keyGroups[i]) {
+                        changes.push({
+                            key,
+                            data
+                        });
+                    }
+                }
+
+                // get colors for non-activated keys
+                for (let i = numKeysActivated; i < lay.keyGroups.length; i++) {
+                    for (const key of lay.keyGroups[i]) {
+                        changes.push(profileAnimation(key, activeProfile));
+                    }
+                }
+                keyboard.processKeyChanges(changes);
+            } else if (lay.mode == "multiSingle") {
+                throw new Error("not implemented");
+            } else if (lay.mode == "multiSplit") {
+                throw new Error("not implemented");
+            } else {
+                assertNever(lay.mode);
             }
         }
     }
