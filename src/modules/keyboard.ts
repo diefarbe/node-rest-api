@@ -6,16 +6,19 @@ const usbDetect = require("usb-detection");
 
 export class KeyboardModule {
 
-    private readonly hardwareKeyboard: Keyboard;
+    public readonly hardwareKeyboard: Keyboard;
     private readonly settings: SettingsModule;
-    private readonly connectionChanged: (connected: boolean) => void;
+    private _connectionChanged: ((connected: boolean) => void) | null = null;
     private firmwareVersionString: string = "0.0.0";
     private isInitalized: boolean = false;
 
-    constructor(settings: SettingsModule, connectionChanged: (connected: boolean) => void) {
-        this.connectionChanged = connectionChanged;
+    constructor(settings: SettingsModule) {
         this.settings = settings;
         this.hardwareKeyboard = new Keyboard();
+    }
+
+    public set connectionChanged(connectionChanged: (connected: boolean) => void) {
+        this._connectionChanged = connectionChanged;
     }
 
     public init() {
@@ -56,10 +59,11 @@ export class KeyboardModule {
         return this.isInitalized;
     }
 
-    public processKeyChanges(changes: StateChangeRequest[]): any {
-        if (this.isInitalized) {
-            this.applyKeyboardChanges(changes);
+    public processKeyChanges(changes: StateChangeRequest[]): void {
+        if (!this.isInitalized) {
+            throw new Error("keyboard is not initialized");
         }
+        this.applyKeyboardChanges(changes);
     }
 
     /**
@@ -87,7 +91,9 @@ export class KeyboardModule {
             console.log("Got keyboard");
 
             this.isInitalized = true;
-            this.connectionChanged(true);
+            if (this._connectionChanged != null) {
+                this._connectionChanged(true);
+            }
         } catch {
             console.log("Failed to take over keyboard");
             this.isInitalized = false;
@@ -96,7 +102,9 @@ export class KeyboardModule {
 
     private cleanupKeyboardDisconnect() {
         this.isInitalized = false;
-        this.connectionChanged(false);
+        if (this._connectionChanged != null) {
+            this._connectionChanged(false);
+        }
         this.hardwareKeyboard.close();
 
     }
@@ -110,8 +118,7 @@ export class KeyboardModule {
             this.internalSendKeyData(key, "green", change.data.green);
             this.internalSendKeyData(key, "blue", change.data.blue);
         }
-        this.hardwareKeyboard.freezeEffects();
-        this.hardwareKeyboard.apply();
+        // NOTE: not calling freezeEffects() or apply() here as StateModule does that now
     }
 
     private internalSendKeyData(key: KeyModel, channel: "red" | "green" | "blue", data: ChannelInfo) {

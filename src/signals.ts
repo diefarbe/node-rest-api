@@ -27,7 +27,6 @@ const signals = new Map<string, Signal>();
 
 let layout: string;
 
-let apiKeyboard: KeyboardModule;
 let settings: SettingsModule;
 let state: StateModule;
 
@@ -77,8 +76,7 @@ const signalMappings: SignalMapping[] = [{
     fadeTime: "1"
 }];
 
-export function signalsInit(_apiKeyboard: KeyboardModule, _settings: SettingsModule, _state: StateModule) {
-    apiKeyboard = _apiKeyboard;
+export function signalsInit(_settings: SettingsModule, _state: StateModule) {
     settings = _settings;
     state = _state;
 
@@ -197,19 +195,10 @@ export function setProfile(profile: Profile | null) {
             }
         }
 
-        makeKeyChanges(profile.defaultAnimations[layout]);
+        state.processKeyChanges(profile.defaultAnimations[layout]);
     }
 
     activeProfile = profile;
-}
-
-function makeKeyChanges(changes: StateChangeRequest[]) {
-    state.processKeyChanges(changes);
-    try {
-        apiKeyboard.processKeyChanges(changes);
-    } catch (e) {
-        console.error("Error while attempting to update keys: ", e);
-    }
 }
 
 /**
@@ -244,7 +233,7 @@ function handleNewSignalValue(signal: string, value: Signal) {
                             changes.push(profileAnimation(key, activeProfile));
                         }
                     }
-                    makeKeyChanges(changes);
+                    state.processKeyChanges(changes);
                 }
                 return;
             }
@@ -274,7 +263,7 @@ function handleNewSignalValue(signal: string, value: Signal) {
                             }
                         }
                     }
-                    makeKeyChanges(changes);
+                    state.processKeyChanges(changes);
                     break;
                 case "multi":
                     throw new Error("not implemented");
