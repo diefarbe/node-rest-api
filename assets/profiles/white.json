@@ -1,7 +1,7 @@
 {
   "name": "White",
   "description": "All keys are white.",
-  "enabledSignals": ["cpu_utilization"],
+  "enabledSignals": "all",
   "uuid": "1f434bc1-030e-4931-9f94-743cfd508783",
   "defaultAnimations": {
     "en-US": [

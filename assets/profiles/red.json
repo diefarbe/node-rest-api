@@ -1,7 +1,7 @@
 {
   "name": "Red",
   "description": "All keys are red.",
-  "enabledSignals": ["cpu_utilization"],
+  "enabledSignals": "all",
   "uuid": "4c41627a-3379-424f-94d0-af3559aeac2e",
   "defaultAnimations": {
     "en-US": [

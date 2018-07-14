@@ -1,7 +1,7 @@
 {
   "name": "Black",
   "description": "All keys are black.",
-  "enabledSignals": ["cpu_utilization"],
+  "enabledSignals": "all",
   "uuid": "a9d0b13a-2b08-4a25-868c-953d557233f4",
   "defaultAnimations": {
     "en-US": [

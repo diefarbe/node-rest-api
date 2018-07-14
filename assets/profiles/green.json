@@ -1,7 +1,7 @@
 {
   "name": "Green",
   "description": "All keys are green.",
-  "enabledSignals": ["cpu_utilization"],
+  "enabledSignals": "all",
   "uuid": "3cf6732e-9585-4a0a-bc46-56d42ffa1f55",
   "defaultAnimations": {
     "en-US": [

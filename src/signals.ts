@@ -43,19 +43,19 @@ const signalMappings: SignalMapping[] = [{
     ranges: [{
         start: 0,
         startInclusive: true,
-        end: 20,
+        end: 60,
         endInclusive: true,
         activatedAnimation: solidColor("00FF00"),
         notActivatedAnimation: null,
     }, {
-        start: 20,
+        start: 60,
         startInclusive: false,
-        end: 30,
+        end: 80,
         endInclusive: true,
         activatedAnimation: solidColor("FFFF00"),
         notActivatedAnimation: null,
     }, {
-        start: 30,
+        start: 80,
         startInclusive: false,
         end: 100,
         endInclusive: true,
@@ -75,6 +75,50 @@ const signalMappings: SignalMapping[] = [{
                 ["8"],
                 ["9"],
                 ["0"],
+            ],
+            mode: "multi"
+        }
+    },
+    fadeTime: "1"
+}, {
+    signal: "memory_utilization",
+    min: 0,
+    max: 100,
+    ranges: [{
+        start: 0,
+        startInclusive: true,
+        end: 60,
+        endInclusive: true,
+        activatedAnimation: solidColor("00FF00"),
+        notActivatedAnimation: null,
+    }, {
+        start: 60,
+        startInclusive: false,
+        end: 80,
+        endInclusive: true,
+        activatedAnimation: solidColor("FFFF00"),
+        notActivatedAnimation: null,
+    }, {
+        start: 80,
+        startInclusive: false,
+        end: 100,
+        endInclusive: true,
+        activatedAnimation: solidColor("FF0000"),
+        notActivatedAnimation: null,
+    }],
+    layouts: {
+        "en-US": {
+            keyGroups: [
+                ["f1"],
+                ["f2"],
+                ["f3"],
+                ["f4"],
+                ["f5"],
+                ["f6"],
+                ["f7"],
+                ["f8"],
+                ["f9"],
+                ["f10"],
             ],
             mode: "multi"
         }
@@ -226,8 +270,6 @@ function signalValueUpdate(signal: string, value: Signal) {
  * @param {Signal} value
  */
 function handleNewSignalValue(signal: string, value: Signal) {
-    console.log(signal + ":" + value);
-
     for (const sig of signalMappings) {
         if (sig.signal === signal) {
             const lay = sig.layouts[layout];
@@ -289,7 +331,6 @@ function handleNewSignalValue(signal: string, value: Signal) {
 
                 // get colors for activated keys
                 const numKeysActivated = Math.floor(lay.keyGroups.length * val / sig.max);
-                console.log("numKeysActivated: " + numKeysActivated);
                 for (let i = 0; i < numKeysActivated; i++) {
                     for (const key of lay.keyGroups[i]) {
                         changes.push({

@@ -1,7 +1,7 @@
 {
   "name": "Dim",
   "description": "Keys are barely on.",
-  "enabledSignals": ["cpu_utilization"],
+  "enabledSignals": "all",
   "uuid": "aac1130f-3bdb-49af-8521-d06fce7314cb",
   "defaultAnimations": {
     "en-US": [
