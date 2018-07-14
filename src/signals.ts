@@ -85,8 +85,7 @@ const signalMappings: SignalMapping[] = [{
             ],
             mode: "multi"
         }
-    },
-    fadeTime: "1"
+    }
 }, {
     signal: "memory_utilization",
     min: 0,
@@ -129,8 +128,7 @@ const signalMappings: SignalMapping[] = [{
             ],
             mode: "multi"
         }
-    },
-    fadeTime: "1"
+    }
 }];
 
 export function signalsInit(_settings: SettingsModule, _keyboard: KeyboardModule) {

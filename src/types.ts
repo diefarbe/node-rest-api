@@ -116,7 +116,6 @@ export interface SignalMapping {
                 "multiSplit" // activated key groups will have the signal value <= their end range (|g|.|.| -> |g|y|.| -> |g|y|r|)
         }
     };
-    fadeTime: string; // e.g. "start - end"
 }
 
 export interface Profile {
