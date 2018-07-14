@@ -37,7 +37,7 @@ let keyboard: KeyboardModule;
 
 // TODO ensure no gaps in ranges and they fall between min and max
 const signalMappings: SignalMapping[] = [{
-    signal: "cpu_utilization",
+    signal: "cpu_utilization_max",
     min: 0,
     max: 100,
     ranges: [{
@@ -57,9 +57,16 @@ const signalMappings: SignalMapping[] = [{
     }, {
         start: 80,
         startInclusive: false,
-        end: 100,
+        end: 99,
         endInclusive: true,
         activatedAnimation: solidColor("FF0000"),
+        notActivatedAnimation: null,
+    }, {
+        start: 99,
+        startInclusive: false,
+        end: 100,
+        endInclusive: true,
+        activatedAnimation: solidColorFlashing("FF0000"),
         notActivatedAnimation: null,
     }],
     layouts: {
@@ -270,6 +277,7 @@ function signalValueUpdate(signal: string, value: Signal) {
  * @param {Signal} value
  */
 function handleNewSignalValue(signal: string, value: Signal) {
+    //console.log(signal + ": " + value);
     for (const sig of signalMappings) {
         if (sig.signal === signal) {
             const lay = sig.layouts[layout];
@@ -419,6 +427,38 @@ function solidColor(color: string): Animation {
         blue: {
             upHoldLevel: parseInt(color.substr(4, 2), 16).toString(),
             direction: '"inc"'
+        }
+    };
+}
+
+function solidColorFlashing(color: string): Animation {
+    return {
+        red: {
+            upHoldLevel: parseInt(color.substr(0, 2), 16).toString(),
+            downHoldLevel: "0",
+            direction: '"incDec"',
+            upIncrement: "255",
+            downDecrement: "40",
+            upHoldDelay: "20",
+            downHoldDelay: "20"
+        },
+        green: {
+            upHoldLevel: parseInt(color.substr(2, 2), 16).toString(),
+            downHoldLevel: "0",
+            direction: '"incDec"',
+            upIncrement: "255",
+            downDecrement: "40",
+            upHoldDelay: "20",
+            downHoldDelay: "20"
+        },
+        blue: {
+            upHoldLevel: parseInt(color.substr(4, 2), 16).toString(),
+            downHoldLevel: "0",
+            direction: '"incDec"',
+            upIncrement: "255",
+            downDecrement: "40",
+            upHoldDelay: "20",
+            downHoldDelay: "20"
         }
     };
 }
