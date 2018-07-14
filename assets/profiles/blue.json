@@ -1,0 +1,1880 @@
+{
+  "name": "Blue",
+  "description": "All keys are blue.",
+  "enabledSignals": ["cpu_utilization"],
+  "uuid": "7075223c-2be7-4a16-aaa0-5cd798de3968",
+  "defaultAnimations": {
+    "en-US": [
+      {
+        "key": "0",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "1",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "2",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "3",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "4",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "5",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "6",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "7",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "8",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "9",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "escape",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "f1",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "f2",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "f3",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "f4",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "f5",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "f6",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "f7",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "f8",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "f9",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "f10",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "f11",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "f12",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "printScreen",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "screenLock",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "pause",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "Macro1",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "Macro2",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "Macro3",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "QKnob",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "backTick",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "dash",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "equalSign",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "backspace",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "insert",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "home",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "pageUp",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "numLock",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "divide",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "multiply",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "substract",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "tab",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "q",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "w",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "e",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "r",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "t",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "y",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "u",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "i",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "o",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "p",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "openBracket",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "closeBracket",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "backSlash",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "delete",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "end",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "pageDown",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "numpad7",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "numpad8",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "numpad9",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "add",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "capsLock",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "a",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "s",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "d",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "f",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "g",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "h",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "j",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "k",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "l",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "semiColon",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "singleQuote",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "return",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "numpad4",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "numpad5",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "numpad6",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "shiftLeft",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "z",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "x",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "c",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "v",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "b",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "n",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "m",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "comma",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "period",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "forwardSlash",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "shiftRight",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "upArrow",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "numpad1",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "numpad2",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "numpad3",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "NumPad_ENTER",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "ctrLeft",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "leftWindowKey",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "altLeft",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "space",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "altRight",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "select",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "rightWindowKey",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "ctrRight",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "leftArrow",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "downArrow",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "rightArrow",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "numpad0",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "NumPad_Decimal",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "leftPipe",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      },
+      {
+        "key": "rightPipe",
+        "data": {
+          "red": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "green": {
+            "upHoldLevel": 0,
+            "direction": "inc"
+          },
+          "blue": {
+            "upHoldLevel": 255,
+            "direction": "inc"
+          }
+        }
+      }
+    ]
+  }
+}

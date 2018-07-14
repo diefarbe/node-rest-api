@@ -119,7 +119,7 @@ export class SettingsModule {
                         this.loadProfileIntoMemory(SettingsModule.profileDirectory + "/" + path);
                     }
                 }
-                this.profiles.default = require("../../assets/profiles/breathing_stripes.json");
+                this.profiles.default = require("../../assets/profiles/dim.json");
 
                 resolve();
             });
