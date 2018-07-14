@@ -17,7 +17,11 @@ export function init(keyboard: KeyboardModule, settings: SettingsModule, state: 
         },
         async update(item: any, data: StateChangeRequest[]) {
             state.processKeyChanges(data);
-            keyboard.processKeyChanges(data);
+            try {
+                keyboard.processKeyChanges(data);
+            } catch (e) {
+                console.error("Error while attempting to send key changes to keyboard: ", e);
+            }
             return {
                 ok: true,
             };

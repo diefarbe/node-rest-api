@@ -52,7 +52,11 @@ async function startProgram() {
     // setup a keyboard object
     const apiKeyboard = new KeyboardModule(settings, (connected: boolean) => {
         if (connected) {
-            apiKeyboard.processKeyChanges(state.getAllKeyData());
+            try {
+                apiKeyboard.processKeyChanges(state.getAllKeyData());
+            } catch (e) {
+                console.error("Error while attempting to re-sync the keyboard: ", e);
+            }
         }
     });
 

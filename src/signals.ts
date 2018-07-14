@@ -1,7 +1,7 @@
 import * as math from "mathjs";
 import { StateModule } from "modules/state";
-import {KeyboardModule} from "./modules/keyboard";
-import {SettingsModule} from "./modules/settings";
+import { KeyboardModule } from "./modules/keyboard";
+import { SettingsModule } from "./modules/settings";
 import {
     Animation, ChannelAnimation, ChannelInfo,
     PluginSignal,
@@ -118,8 +118,12 @@ export function disableSignal(signal: PluginSignal) {
     for (let i = 0; i < enabledSignalPlugins.length; i++) {
         const enabled = enabledSignalPlugins[i];
         if (enabled.pluginSignal === signal) {
-            if (enabled.timer != null) { clearTimeout(enabled.timer); }
-            if (enabled.hook != null) { enabled.hook.unhook(); }
+            if (enabled.timer != null) {
+                clearTimeout(enabled.timer);
+            }
+            if (enabled.hook != null) {
+                enabled.hook.unhook();
+            }
             enabledSignalPlugins.splice(i, 1);
             return;
         }
@@ -201,7 +205,11 @@ export function setProfile(profile: Profile | null) {
 
 function makeKeyChanges(changes: StateChangeRequest[]) {
     state.processKeyChanges(changes);
-    apiKeyboard.processKeyChanges(changes);
+    try {
+        apiKeyboard.processKeyChanges(changes);
+    } catch (e) {
+        console.error("Error while attempting to update keys: ", e);
+    }
 }
 
 /**

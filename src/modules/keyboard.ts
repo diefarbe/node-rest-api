@@ -1,7 +1,8 @@
 import { ChannelState, Keyboard, KeyInfo, KeyModel } from "das";
-const usbDetect = require("usb-detection");
 import { ChannelInfo, StateChangeRequest } from "../types";
 import { SettingsModule } from "./settings";
+
+const usbDetect = require("usb-detection");
 
 export class KeyboardModule {
 
@@ -96,6 +97,7 @@ export class KeyboardModule {
     private cleanupKeyboardDisconnect() {
         this.isInitalized = false;
         this.connectionChanged(false);
+        this.hardwareKeyboard.close();
 
     }
 
