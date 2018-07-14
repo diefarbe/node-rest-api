@@ -10,7 +10,7 @@ export class KeyboardModule {
     private readonly settings: SettingsModule;
     private firmwareVersionString: string = "0.0.0";
     private isInitalized: boolean = false;
-    
+
     private needsSync = false;
     private currentState = new State();
     private wantedState = new State();
@@ -58,7 +58,7 @@ export class KeyboardModule {
         if (this.syncTimer != null) {
             clearTimeout(this.syncTimer);
             this.syncTimer = null;
-        } 
+        }
     }
 
     public hasKeyboard() {
@@ -111,14 +111,17 @@ export class KeyboardModule {
     /**
      * Updates the wanted state with the provided key changes.
      * @param data an array of state changes
+     * @param sync whether or not to immediately sync the changes
      */
-    public processKeyChanges(data: StateChangeRequest[]) {
+    public processKeyChanges(data: StateChangeRequest[], sync = true) {
         for (const change of data) {
             this.wantedState[change.key] = change.data;
         }
 
         this.needsSync = true;
-        this.sync();
+        if (sync) {
+            this.sync();
+        }
     }
 
     /**
