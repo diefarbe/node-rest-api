@@ -3,19 +3,13 @@ import * as KeysEndpoint from "./endpoints/keys";
 import * as ProfileEndpoint from "./endpoints/profiles";
 import { KeyboardModule } from "./modules/keyboard";
 import { SettingsModule } from "./modules/settings";
-import { setProfile, signalsInit } from "./signals";
-import {
-    HookSource,
-    PollingCallbackSource,
-    PollingSource,
-    Signal,
-    SignalProviderPlugin,
-    SignalSource,
-    StateChangeRequest
-} from "./types";
+import { SignalsModule } from "./modules/signals";
+import { Logger } from "./log";
 
 const feathers = require("@feathersjs/feathers");
 const express = require("@feathersjs/express");
+
+let logger = new Logger("index.ts");
 
 function configureFeathers() {
     const app = express(feathers());
@@ -36,6 +30,8 @@ function configureFeathers() {
 }
 
 async function startProgram() {
+    logger.info("Hello.");
+
     // setup the main part of the api
     const app = configureFeathers();
 
@@ -44,7 +40,7 @@ async function startProgram() {
 
     // load or create our settings for the first time
     await settings.init();
-    
+
     // setup a keyboard object
     const keyboard = new KeyboardModule(settings);
 
@@ -52,7 +48,9 @@ async function startProgram() {
     // If not, wait for one to connect from here on out.
     keyboard.init();
 
-    signalsInit(settings, keyboard);
+    const signals = new SignalsModule(settings, keyboard);
+
+    signals.signalsInit();
 
     app.use("info", InitEndpoint.init(keyboard, settings));
     app.use("profiles", ProfileEndpoint.init(keyboard, settings));
@@ -60,20 +58,30 @@ async function startProgram() {
 
     const server = app.listen(3030);
 
-    server.on("listening", () => console.log("Feathers REST API started at http://localhost:3030"));
+    server.on("listening", () => logger.info("Feathers REST API started at http://localhost:3030"));
+
+    let cleanedUp = false;
 
     function cleanupProgram() {
+        if (cleanedUp) {
+            return;
+        }
+        logger.info("Cleaning up...");
         server.close();
+        signals.setProfile(null); // detaches from signal handlers
         keyboard.close();
-        setProfile(null); // detaches from signal handlers
+        cleanedUp = true;
+        logger.info("Cleanup complete.");
     }
 
     process.on("SIGINT", () => {
+        logger.info("SIGINT");
         cleanupProgram();
     });
 
     process.on("exit", () => {
         cleanupProgram();
+        logger.info("Goodbye.");
     });
 
 }

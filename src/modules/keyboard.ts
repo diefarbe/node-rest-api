@@ -1,10 +1,12 @@
 import { ChannelState, Keyboard, KeyInfo, KeyModel } from "das";
 import { ChannelInfo, StateChangeRequest, StateInfo } from "../types";
 import { SettingsModule } from "./settings";
+import { Logger } from "../log";
 
 const usbDetect = require("usb-detection");
 
 export class KeyboardModule {
+    private readonly logger = new Logger("KeyboardModule");
 
     private readonly hardwareKeyboard: Keyboard;
     private readonly settings: SettingsModule;
@@ -28,7 +30,7 @@ export class KeyboardModule {
         usbDetect.find((error: any, devices: any) => {
             for (const device of devices) {
                 if (device.vendorId === 9456) {
-                    console.log("Keyboard: Found a das keyboard, initializing");
+                    this.logger.info("Found a keyboard.");
                     setTimeout(() => {
                         this.internalSetupKeyboard();
                     }, 2000);
@@ -37,14 +39,12 @@ export class KeyboardModule {
         });
 
         usbDetect.on("remove:9456", (device: any) => {
-            console.log("Keyboard: Removed a das keyboard");
+            this.logger.info("Removed a keyboard.");
             this.cleanupKeyboardDisconnect();
         });
 
         usbDetect.on("add:9456", (device: any) => {
-            console.log("Keyboard: Added a das keyboard");
-
-            console.log("Keyboard: Found a das keyboard, initializing");
+            this.logger.info("Added a keyboard.");
             setTimeout(() => {
                 this.internalSetupKeyboard();
             }, 2000);
@@ -54,11 +54,11 @@ export class KeyboardModule {
     }
 
     public close() {
-        this.hardwareKeyboard.close();
         if (this.syncTimer != null) {
             clearTimeout(this.syncTimer);
             this.syncTimer = null;
         }
+        this.hardwareKeyboard.close();
     }
 
     public hasKeyboard() {
@@ -156,26 +156,26 @@ export class KeyboardModule {
                 // we've successfully synced everything!
                 this.needsSync = false;
             } catch (e) {
-                // TODO remove this logging
-                console.log("Error while attempting to sync change", e);
+                // no-op
             }
         }
     }
 
     private internalSetupKeyboard() {
         try {
+            this.logger.info("Initializing keyboard...");
             this.hardwareKeyboard.find();
 
             // we found a keyboard, let's go ahead and handle taking over it
             this.hardwareKeyboard.initialize();
             this.firmwareVersionString = this.hardwareKeyboard.getKeyboardData().firmware;
 
-            console.log("Got keyboard");
+            this.sync();
 
             this.isInitalized = true;
-            this.sync();
+            this.logger.info("Keyboard initialization complete.");
         } catch {
-            console.log("Failed to take over keyboard");
+            this.logger.warn("Failed to take over keyboard");
             this.isInitalized = false;
         }
     }
@@ -184,11 +184,9 @@ export class KeyboardModule {
         this.isInitalized = false;
         this.currentState = new State();
         this.hardwareKeyboard.close();
-
     }
 
     private internalSendKeyData(key: KeyModel, channel: "red" | "green" | "blue", data: ChannelInfo) {
-
         let aState = new ChannelState(key, channel)
             .setUpHoldLevel(data.upHoldLevel) //
             .setDownHoldLevel(data.downHoldLevel)

@@ -1,8 +1,9 @@
-
 import * as fs from "fs";
 import { Profile, StateChangeRequest } from "types";
+import { Logger } from "../log";
 
 export class SettingsModule {
+    private readonly logger = new Logger("SettingsModule");
 
     private static readonly homedir = require("os").homedir();
     private static readonly configDirectory = SettingsModule.homedir + "/.config";
@@ -20,11 +21,13 @@ export class SettingsModule {
     private profiles: { [key: string]: Profile } = {};
 
     public async init() {
+        this.logger.info("Loading settings...");
         const shouldSetup = await this.shouldDoInitialSetup();
         if (shouldSetup) {
             await this.initialSetup();
         }
         await this.readSettings();
+        this.logger.info("Settings load complete.");
     }
 
     public getProfiles(): { [key: string]: Profile } {
@@ -44,7 +47,9 @@ export class SettingsModule {
             this.settings[key] = data[key];
         }
         fs.writeFile(SettingsModule.settingsJSON, JSON.stringify(this.settings), (err) => {
-            if (err) { throw err; }
+            if (err) {
+                throw err;
+            }
         });
     }
 
@@ -62,11 +67,12 @@ export class SettingsModule {
             };
             this.profiles[uuid] = profile;
             fs.writeFile(SettingsModule.profileDirectory + "/" + uuid + ".json", JSON.stringify(profile), (err) => {
-                if (err) { reject(); }
+                if (err) {
+                    reject();
+                }
                 resolve(profile);
             });
         });
-
     }
 
     public deleteProfile(id: string) {
@@ -91,7 +97,6 @@ export class SettingsModule {
                 });
             });
         });
-
     }
 
     private initialSetup() {
@@ -100,8 +105,10 @@ export class SettingsModule {
             fs.mkdirSync(SettingsModule.profileDirectory);
             fs.writeFile(SettingsModule.settingsJSON,
                 JSON.stringify(SettingsModule.DefaultSettings), (err) => {
-                    if (err) { reject(err); }
-                    console.log("Settings: Initial setup complete");
+                    if (err) {
+                        reject(err);
+                    }
+                    this.logger.info("Initial setup complete.");
                     resolve();
                 });
         });
@@ -115,7 +122,7 @@ export class SettingsModule {
                 const paths = fs.readdirSync(SettingsModule.profileDirectory);
                 for (const path of paths) {
                     if (path.endsWith(".json")) {
-                        console.log(SettingsModule.profileDirectory + "/" + path);
+                        this.logger.info("Found profile:", SettingsModule.profileDirectory + "/" + path);
                         this.loadProfileIntoMemory(SettingsModule.profileDirectory + "/" + path);
                     }
                 }
@@ -123,9 +130,7 @@ export class SettingsModule {
 
                 resolve();
             });
-
         });
-
     }
 
     private loadProfileIntoMemory(path: string) {
