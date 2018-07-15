@@ -175,7 +175,7 @@ export class KeyboardModule {
             this.isInitalized = true;
             this.logger.info("Keyboard initialization complete.");
         } catch {
-            this.logger.warn("Failed to take over keyboard");
+            this.logger.warn("Keyboard initialization failed.");
             this.isInitalized = false;
         }
     }
