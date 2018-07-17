@@ -2,6 +2,12 @@
 # yarn lockfile v1
 
 
+"@diefarbe/lib@^0.0.4":
+  version "0.0.4"
+  resolved "https://registry.yarnpkg.com/@diefarbe/lib/-/lib-0.0.4.tgz#207049903e0dea7347c657d31d8ff0dfc31c3469"
+  dependencies:
+    node-hid "^0.7.2"
+
 "@feathersjs/commons@^1.4.0", "@feathersjs/commons@^1.4.1":
   version "1.4.1"
   resolved "https://registry.yarnpkg.com/@feathersjs/commons/-/commons-1.4.1.tgz#81f19ffb83eac6afd33c629d4d0cad57441fbede"
@@ -299,11 +305,6 @@ cookie@0.3.1:
 core-util-is@~1.0.0:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/core-util-is/-/core-util-is-1.0.2.tgz#b5fd54220aa2bc5ab57aab7140c940754503c1a7"
-
-das@../node-lib/:
-  version "0.0.1"
-  dependencies:
-    node-hid "^0.7.2"
 
 debug@2.6.9:
   version "2.6.9"
