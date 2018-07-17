@@ -1,4 +1,4 @@
-import { ChannelState, Keyboard, KeyInfo, KeyModel } from "das";
+import { ChannelState, Keyboard, KeyInfo, KeyModel, KeyState } from "das";
 import { ChannelInfo, StateChangeRequest, StateInfo } from "../types";
 import { SettingsModule } from "./settings";
 import { Logger } from "../log";
@@ -58,6 +58,7 @@ export class KeyboardModule {
             clearTimeout(this.syncTimer);
             this.syncTimer = null;
         }
+        this.restoreHardwareProfile();
         this.hardwareKeyboard.close();
     }
 
@@ -222,6 +223,20 @@ export class KeyboardModule {
         this.hardwareKeyboard.setKeyColorChannel(
             aState,
         );
+    }
+    
+    private restoreHardwareProfile() {
+        const keys = Object.keys(KeyInfo["en-US"]);
+        for (const keyName of keys) {
+            const key = KeyInfo["en-US"][keyName];
+            this.hardwareKeyboard.setKeyState(new KeyState(key).setToColorHex("#000000"));
+        }
+        this.hardwareKeyboard.apply();
+        for (const key in KeyInfo[this.settings.getLayout()]) {
+            if (KeyInfo[this.settings.getLayout()][key] === undefined) { continue; }
+
+            this.hardwareKeyboard.setKeyState(new KeyState(KeyInfo[this.settings.getLayout()][key]).setToHardwareProfile());
+        }
     }
 
 }
