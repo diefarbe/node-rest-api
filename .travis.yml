@@ -19,7 +19,7 @@ script: docker build -t diefarbe/sich-ausruhen .
 
 deploy:
   provider: script
-  script: travis_dockerpush.sh
+  script: bash travis_dockerpush.sh
   on:
     branch: master
   skip_cleanup: true
