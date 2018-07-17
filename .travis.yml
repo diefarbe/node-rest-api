@@ -22,6 +22,7 @@ deploy:
   script: travis_dockerpush.sh
   on:
     branch: master
+  skip_cleanup: true
 
 env:
   global:
