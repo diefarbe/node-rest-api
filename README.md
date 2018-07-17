@@ -1,22 +1,7 @@
+# Sich Ausruhen
 
+`npm run start`
 
-opens at 3030
+## Docker
 
-run yarn start to start
-
-
-GET /info
-
-displays keyboard info (firmware version, status, ect)
-
-GET /keys/[description]
-
-displays a keys description
-
-GET /keys
-
-displays all keys with their status (if known)
-
-PUT /keys
-
-accepts an array of data similar to /keys output
+docker run --rm -it --privileged -v /dev/bus/usb:/dev/bus/usb diefarbe/sich-ausruhen

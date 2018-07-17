@@ -1,4 +1,4 @@
-import { ChannelState, Keyboard, KeyInfo, KeyModel, KeyState } from "das";
+import { ChannelState, Keyboard, KeyInfo, KeyModel, KeyState } from "@diefarbe/lib";
 import { ChannelInfo, StateChangeRequest, StateInfo } from "../types";
 import { SettingsModule } from "./settings";
 import { Logger } from "../log";

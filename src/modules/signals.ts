@@ -8,7 +8,7 @@ import {
     Signal, SignalMapping,
     SignalProviderPlugin, StateChangeRequest, StateInfo
 } from "../types";
-import { KeyInfo } from "das";
+import { KeyInfo } from "@diefarbe/lib";
 import { assertNever } from "../utils";
 import { Logger } from "../log";
 

@@ -1,6 +1,6 @@
 {
   "name": "sich-ausruhen",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -14,7 +14,7 @@
   "dependencies": {
     "@feathersjs/express": "^1.2.3",
     "@feathersjs/feathers": "^3.1.7",
-    "das": "../node-lib/",
+    "@diefarbe/lib": "^0.0.2",
     "mathjs": "^5.0.2",
     "require-path": "^0.3.0",
     "systeminformation": "^3.42.3",

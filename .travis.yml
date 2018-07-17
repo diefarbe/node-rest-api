@@ -1,0 +1,19 @@
+language: node_js
+node_js:
+  - '6'
+
+services:
+  - docker
+  
+script: docker build -t diefarbe/sich-ausruhen .
+
+deploy:
+  provider: script
+  script: travis_dockerpush.sh
+  on:
+    branch: master
+
+env:
+  DOCKER_USERNAME: chris13524
+  DOCKER_PASSWORD:
+    secure: Ihgby3VrBAGXteRQruPXjI8MWnNcifVaPTVtkaXA7yztuz5lo1yGOzKy5mS2PgOe5/ShYf6mr5yrKYBtfV4kiCFH7si+G0T34dUaWX7mMXU9h+ZCHdBXTuMMY9wGixJy4G7/9FcrgVDWWrojPBzbJW+mykr+oTUrptq87j1xJun3HSjcDTQVlaYU4CO0VhdQpaaGpTuo5K6qvi4tdX3lm38/wvYp6PkRjJsyEPxK23p33vZet672jyLGD2siBKPJUSvpuDRSAw9PUi5ilZ6VIaGB5F5XbwVH7xmYSb5N92BXFJ+KvyXHzmWWVr4J7zY0+dsZW/LrevIiIagrxK01EcffHvg8Ubg9LAEkUeptedR/n7nPHAoo3UzkcNDKPw8lIsF+0UNl/qDbWYNLWHbdxIPbzvLIXgD4GRB29CUFYt7m30IX0cLWi+BdDUD0yU9ghuOJLhmg9A2raWVwnAR3ZTKWvwl44L9BVWvoSJi5txFjldbsyJyY1bU3HgHLTHGoYY/n9eKDMdHc5jFuepBb4MXPvUtfAyCgf6cHHOaC2KruiKcJiq2eNO/k9OQ8JVbLoGtMAjRwYrLAeLjSHNgJPuJ+8S39ywqYz8RZZSG82okALrg2CxGSoyl+bdEPHFgNIEWocuxZ7xQKjzgXfJVIa6BfnyH3eeqEQ8V9g0UBn7U=
