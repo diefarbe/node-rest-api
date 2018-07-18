@@ -74,8 +74,21 @@ async function startProgram() {
         logger.info("Cleanup complete.");
     }
 
+    // ctrl+c
     process.on("SIGINT", () => {
         logger.info("SIGINT");
+        cleanupProgram();
+    });
+
+    // terminate
+    process.on("SIGTERM", () => {
+        logger.info("SIGTERM");
+        cleanupProgram();
+    });
+
+    // parent process (probably npm) dies
+    process.on("SIGHUP", () => {
+        logger.info("SIGHUP");
         cleanupProgram();
     });
 

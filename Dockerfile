@@ -10,4 +10,4 @@ RUN curl -sL https://deb.nodesource.com/setup_8.x | bash -
 RUN apt-get install -y nodejs
 RUN npm install
 
-ENTRYPOINT ["npm", "run", "start"]
+ENTRYPOINT ["node", "/diefarbe/dist/index.js"]
