@@ -132,32 +132,42 @@ export class KeyboardModule {
         // only sync if it needs it, and there is actually a keyboard
         if (this.needsSync && this.isInitalized) {
             try {
+                let changed = false;
                 for (let key in this.wantedState) {
                     let currentState = this.currentState[key];
                     let wantedState = this.wantedState[key];
+                    const keyModel = KeyInfo[this.settings.getLayout()][key];
 
                     // if current state and wanted state differs
                     // comparison is not perfect, see: https://stackoverflow.com/questions/1068834/object-comparison-in-javascript#1144249
-                    if (JSON.stringify(currentState) !== JSON.stringify(wantedState)) {
-                        // write the wanted state to the keyboard
-                        const data = this.wantedState[key];
-                        const keyModel = KeyInfo[this.settings.getLayout()][key];
-                        this.internalSendKeyData(keyModel, "red", data.red);
-                        this.internalSendKeyData(keyModel, "green", data.green);
-                        this.internalSendKeyData(keyModel, "blue", data.blue);
 
-                        // and update the current state
-                        this.currentState[key] = wantedState;
+                    // write the wanted state to the keyboard
+                    if (currentState === undefined || JSON.stringify(currentState.red) !== JSON.stringify(wantedState.red)) {
+                        this.internalSendKeyData(keyModel, "red", wantedState.red);
+                        changed = true;
                     }
+                    if (currentState === undefined || JSON.stringify(currentState.green) !== JSON.stringify(wantedState.green)) {
+                        this.internalSendKeyData(keyModel, "green", wantedState.green);
+                        changed = true;
+                    }
+                    if (currentState === undefined || JSON.stringify(currentState.blue) !== JSON.stringify(wantedState.blue)) {
+                        this.internalSendKeyData(keyModel, "blue", wantedState.blue);
+                        changed = true;
+                    }
+
+                    // and update the current state
+                    this.currentState[key] = wantedState;
                 }
 
-                this.hardwareKeyboard.freezeEffects();
-                this.hardwareKeyboard.apply();
+                if (changed) {
+                    this.hardwareKeyboard.freezeEffects();
+                    this.hardwareKeyboard.apply();
+                }
 
                 // we've successfully synced everything!
                 this.needsSync = false;
             } catch (e) {
-                // no-op
+                this.logger.warn(e);
             }
         }
     }
@@ -175,8 +185,8 @@ export class KeyboardModule {
 
             this.isInitalized = true;
             this.logger.info("Keyboard initialization complete.");
-        } catch {
-            this.logger.warn("Keyboard initialization failed.");
+        } catch (e) {
+            this.logger.warn("Keyboard initialization failed.", e);
             this.isInitalized = false;
         }
     }
@@ -224,7 +234,7 @@ export class KeyboardModule {
             aState,
         );
     }
-    
+
     private restoreHardwareProfile() {
         const keys = Object.keys(KeyInfo["en-US"]);
         for (const keyName of keys) {
@@ -233,7 +243,9 @@ export class KeyboardModule {
         }
         this.hardwareKeyboard.apply();
         for (const key in KeyInfo[this.settings.getLayout()]) {
-            if (KeyInfo[this.settings.getLayout()][key] === undefined) { continue; }
+            if (KeyInfo[this.settings.getLayout()][key] === undefined) {
+                continue;
+            }
 
             this.hardwareKeyboard.setKeyState(new KeyState(KeyInfo[this.settings.getLayout()][key]).setToHardwareProfile());
         }
