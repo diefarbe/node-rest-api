@@ -5,11 +5,19 @@ import { KeyboardModule } from "./modules/keyboard";
 import { SettingsModule } from "./modules/settings";
 import { SignalsModule } from "./modules/signals";
 import { Logger } from "./log";
+import { homedir } from "os";
 
 const feathers = require("@feathersjs/feathers");
 const express = require("@feathersjs/express");
+const program = require("commander");
+const pack = require("../package.json");
 
 let logger = new Logger("index.ts");
+
+program
+    .version(pack.version, '-v, --version')
+    .option("--config <path>", "specify the config directory", homedir() + "/.config/diefarbe")
+    .parse(process.argv);
 
 function configureFeathers() {
     const app = express(feathers());
@@ -36,7 +44,7 @@ async function startProgram() {
     const app = configureFeathers();
 
     // create a settings object
-    const settings = new SettingsModule();
+    const settings = new SettingsModule(program.config);
 
     // load or create our settings for the first time
     await settings.init();

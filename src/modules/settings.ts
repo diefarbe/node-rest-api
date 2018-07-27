@@ -1,16 +1,21 @@
 import * as fs from "fs";
 import { Profile, StateChangeRequest } from "types";
 import { Logger } from "../log";
+import { homedir } from "os";
 
 export class SettingsModule {
     private readonly logger = new Logger("SettingsModule");
 
-    private static readonly homedir = require("os").homedir();
-    private static readonly configDirectory = SettingsModule.homedir + "/.config";
-    private static readonly ourDirectory = SettingsModule.configDirectory + "/diefarbe";
+    private readonly ourDirectory: string;
+    private readonly profileDirectory: string;
+    private readonly settingsJSON: string;
 
-    private static readonly profileDirectory = SettingsModule.ourDirectory + "/profiles";
-    private static readonly settingsJSON = SettingsModule.ourDirectory + "/settings.json";
+    constructor(configPath: string) {
+        this.logger.info("Config directory: " + configPath);
+        this.ourDirectory = configPath;
+        this.profileDirectory = this.ourDirectory + "/profiles";
+        this.settingsJSON = this.ourDirectory + "/settings.json";
+    }
 
     private static readonly DefaultSettings = {
         profile: "default",
@@ -46,7 +51,7 @@ export class SettingsModule {
         for (const key of Object.keys(data)) {
             this.settings[key] = data[key];
         }
-        fs.writeFile(SettingsModule.settingsJSON, JSON.stringify(this.settings), (err) => {
+        fs.writeFile(this.settingsJSON, JSON.stringify(this.settings), (err) => {
             if (err) {
                 throw err;
             }
@@ -66,7 +71,7 @@ export class SettingsModule {
                 },
             };
             this.profiles[uuid] = profile;
-            fs.writeFile(SettingsModule.profileDirectory + "/" + uuid + ".json", JSON.stringify(profile), (err) => {
+            fs.writeFile(this.profileDirectory + "/" + uuid + ".json", JSON.stringify(profile), (err) => {
                 if (err) {
                     reject();
                 }
@@ -77,33 +82,27 @@ export class SettingsModule {
 
     public deleteProfile(id: string) {
         delete this.profiles[id];
-        fs.unlinkSync(SettingsModule.profileDirectory + "/" + id + ".json");
+        fs.unlinkSync(this.profileDirectory + "/" + id + ".json");
         return { id };
     }
 
     private shouldDoInitialSetup() {
         return new Promise<boolean>((resolve, reject) => {
-            fs.access(SettingsModule.configDirectory, fs.constants.F_OK, (err) => {
+            fs.access(this.ourDirectory, fs.constants.F_OK, (err) => {
                 if (err) {
-                    fs.mkdirSync(SettingsModule.configDirectory);
+                    resolve(true);
+                } else {
+                    resolve(false);
                 }
-
-                fs.access(SettingsModule.ourDirectory, fs.constants.F_OK, (err) => {
-                    if (err) {
-                        resolve(true);
-                    } else {
-                        resolve(false);
-                    }
-                });
             });
         });
     }
 
     private initialSetup() {
         return new Promise<void>((resolve, reject) => {
-            fs.mkdirSync(SettingsModule.ourDirectory);
-            fs.mkdirSync(SettingsModule.profileDirectory);
-            fs.writeFile(SettingsModule.settingsJSON,
+            fs.mkdirSync(this.ourDirectory);
+            fs.mkdirSync(this.profileDirectory);
+            fs.writeFile(this.settingsJSON,
                 JSON.stringify(SettingsModule.DefaultSettings), (err) => {
                     if (err) {
                         reject(err);
@@ -116,14 +115,15 @@ export class SettingsModule {
 
     private readSettings() {
         return new Promise<void>((resolve, reject) => {
-            fs.readFile(SettingsModule.settingsJSON, (err, data) => {
+            fs.readFile(this.settingsJSON, (err, data) => {
+                if (data === undefined) throw new Error(this.settingsJSON + " is corrupted");
                 this.settings = JSON.parse(data.toString("utf8"));
 
-                const paths = fs.readdirSync(SettingsModule.profileDirectory);
+                const paths = fs.readdirSync(this.profileDirectory);
                 for (const path of paths) {
                     if (path.endsWith(".json")) {
-                        this.logger.info("Found profile:", SettingsModule.profileDirectory + "/" + path);
-                        this.loadProfileIntoMemory(SettingsModule.profileDirectory + "/" + path);
+                        this.logger.info("Found profile:", this.profileDirectory + "/" + path);
+                        this.loadProfileIntoMemory(this.profileDirectory + "/" + path);
                     }
                 }
                 this.profiles.default = require("../../assets/profiles/dim.json");
