@@ -125,5 +125,9 @@ export interface Profile {
         [layout: string]: StateChangeRequest[];
     };
     uuid: string;
+}
+
+export interface SignalProfile {
+    profile: string;
     enabledSignals: string[] | string;
 }

@@ -1,7 +1,6 @@
 {
   "name": "Breathing Stripes",
   "description": "Some cool thing with stripes!",
-  "enabledSignals": "all",
   "uuid": "43c18a0c-a1c2-4f84-a421-2e8c9598897f",
   "defaultAnimations": {
     "en-US": [

@@ -76,7 +76,7 @@ async function startProgram() {
         }
         logger.info("Cleaning up...");
         server.close();
-        signals.setProfile(null); // detaches from signal handlers
+        signals.setSignalProfile(null); // detaches from signal handlers
         keyboard.close();
         cleanedUp = true;
         logger.info("Cleanup complete.");

@@ -5,7 +5,7 @@ import {
     Animation, ChannelAnimation, ChannelInfo,
     PluginSignal,
     Profile,
-    Signal, SignalMapping,
+    Signal, SignalMapping, SignalProfile,
     SignalProviderPlugin, StateChangeRequest, StateInfo
 } from "../types";
 import { KeyInfo } from "@diefarbe/lib";
@@ -23,6 +23,7 @@ interface EnabledSignal {
 export class SignalsModule {
     private readonly logger = new Logger("SignalsModule");
 
+    private activeSignalProfile: SignalProfile;
     private activeProfile: Profile;
 
     private signalPlugins: SignalProviderPlugin[] = [];
@@ -132,14 +133,18 @@ export class SignalsModule {
         private settings: SettingsModule,
         private keyboard: KeyboardModule) {
         this.layout = this.settings.getLayout();
+        this.activeSignalProfile = this.nullSignalProfile();
         this.activeProfile = this.nullProfile();
     }
 
     public signalsInit() {
         this.logger.info("Initializing signals.");
-        const currentSettings = this.settings.getSettings();
-        const profile = this.settings.getProfiles()[currentSettings.profile];
-        this.setProfile(profile);
+        //const currentSettings = this.settings.getSettings();
+        //const profile = this.settings.getProfiles()[currentSettings.profile];
+        this.setSignalProfile({
+            profile: "default",
+            enabledSignals: "all"
+        });
 
         requirePath({
             path: "plugins",
@@ -152,7 +157,7 @@ export class SignalsModule {
                     this.loadPlugin(plugin);
                 }
 
-                this.setProfile(this.activeProfile); // refresh the profile
+                this.setSignalProfile(this.activeSignalProfile); // refresh the signal profile
             })
             .catch((errors: any) => {
                 throw errors;
@@ -214,22 +219,24 @@ export class SignalsModule {
         this.enabledSignalPlugins.push(enabledSignal);
     }
 
-    public setProfile(profile: Profile | null) {
-        if (profile == null) profile = this.nullProfile();
+    public setSignalProfile(signalProfile: SignalProfile | null) {
+        if (signalProfile == null) signalProfile = this.nullSignalProfile();
+        
+        const profile = this.lookupProfile(signalProfile.profile);
 
         for (const signal of Object.assign([], this.enabledSignalPlugins)) {
             this.disableSignal(signal.pluginSignal);
         }
 
-        if (typeof profile.enabledSignals === "string") {
+        if (typeof signalProfile.enabledSignals === "string") {
             // we have a tag
             for (const plugin of this.signalPlugins) {
                 for (const signal of plugin.signals) {
-                    if (profile.enabledSignals === "all") {
+                    if (signalProfile.enabledSignals === "all") {
                         this.enableSignal(signal);
                     } else {
                         for (const tag of signal.tags) {
-                            if (profile.enabledSignals === tag) {
+                            if (signalProfile.enabledSignals === tag) {
                                 this.enableSignal(signal);
                             }
                         }
@@ -238,7 +245,7 @@ export class SignalsModule {
             }
         } else {
             // we have a list of signals
-            for (const enabledSignal of profile.enabledSignals) {
+            for (const enabledSignal of signalProfile.enabledSignals) {
                 for (const plugin of this.signalPlugins) {
                     for (const signal of plugin.signals) {
                         if (signal.name === enabledSignal) {
@@ -251,6 +258,7 @@ export class SignalsModule {
 
         this.keyboard.processKeyChanges(profile.defaultAnimations[this.layout]);
 
+        this.activeSignalProfile = signalProfile;
         this.activeProfile = profile;
     }
 
@@ -454,7 +462,6 @@ export class SignalsModule {
         let ret: Profile = {
             name: "NULL",
             uuid: "null",
-            enabledSignals: [],
             defaultAnimations: {}
         };
         ret.defaultAnimations[this.layout] = [];
@@ -479,5 +486,16 @@ export class SignalsModule {
         }
 
         return ret;
+    }
+    
+    private nullSignalProfile(): SignalProfile {
+        return {
+            profile: "NULL",
+            enabledSignals: []
+        };
+    }
+    
+    private lookupProfile(profile: string): Profile {
+        return this.settings.getProfiles()[profile] || this.nullProfile();
     }
 }
