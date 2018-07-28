@@ -50,7 +50,7 @@ async function startProgram() {
     await settings.init();
 
     // setup a keyboard object
-    const keyboard = new KeyboardModule(settings);
+    const keyboard = new KeyboardModule(settings.getLayout());
 
     // Start connecting to the keyboard (if one exists)
     // If not, wait for one to connect from here on out.

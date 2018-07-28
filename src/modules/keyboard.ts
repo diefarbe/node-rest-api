@@ -2,6 +2,7 @@ import { ChannelState, Keyboard, KeyInfo, KeyModel, KeyState } from "@diefarbe/l
 import { ChannelInfo, StateChangeRequest, StateInfo } from "../types";
 import { SettingsModule } from "./settings";
 import { Logger } from "../log";
+import { IKeyMapCulture } from "@diefarbe/lib/src/internal/models/index";
 
 const usbDetect = require("usb-detection");
 
@@ -9,7 +10,8 @@ export class KeyboardModule {
     private readonly logger = new Logger("KeyboardModule");
 
     private readonly hardwareKeyboard: Keyboard;
-    private readonly settings: SettingsModule;
+    private readonly layout: string;
+    private readonly keysInLayout: IKeyMapCulture;
     private firmwareVersionString: string = "0.0.0";
     private isInitalized: boolean = false;
 
@@ -18,8 +20,9 @@ export class KeyboardModule {
     private wantedState = new State();
     private syncTimer: NodeJS.Timer | null = null;
 
-    constructor(settings: SettingsModule) {
-        this.settings = settings;
+    constructor(layout: string) {
+        this.layout = layout;
+        this.keysInLayout = KeyInfo[this.layout];
         this.hardwareKeyboard = new Keyboard();
     }
 
@@ -99,7 +102,7 @@ export class KeyboardModule {
     public getAllKeyData() {
         const keys: StateChangeRequest[] = [];
 
-        const ks = Object.keys(KeyInfo[this.settings.getLayout()]);
+        const ks = Object.keys(this.keysInLayout);
         for (const k of ks) {
             keys.push({
                 key: k,
@@ -136,7 +139,7 @@ export class KeyboardModule {
                 for (let key in this.wantedState) {
                     let currentState = this.currentState[key];
                     let wantedState = this.wantedState[key];
-                    const keyModel = KeyInfo[this.settings.getLayout()][key];
+                    const keyModel = this.keysInLayout[key];
 
                     // if current state and wanted state differs
                     // comparison is not perfect, see: https://stackoverflow.com/questions/1068834/object-comparison-in-javascript#1144249
@@ -236,19 +239,11 @@ export class KeyboardModule {
     }
 
     private restoreHardwareProfile() {
-        const keys = Object.keys(KeyInfo["en-US"]);
-        for (const keyName of keys) {
-            const key = KeyInfo["en-US"][keyName];
-            this.hardwareKeyboard.setKeyState(new KeyState(key).setToColorHex("#000000"));
+        for (const keyName in this.keysInLayout) {
+            const key = this.keysInLayout[keyName];
+            this.hardwareKeyboard.setKeyState(new KeyState(key).setToHardwareProfile());
         }
         this.hardwareKeyboard.apply();
-        for (const key in KeyInfo[this.settings.getLayout()]) {
-            if (KeyInfo[this.settings.getLayout()][key] === undefined) {
-                continue;
-            }
-
-            this.hardwareKeyboard.setKeyState(new KeyState(KeyInfo[this.settings.getLayout()][key]).setToHardwareProfile());
-        }
     }
 
 }
