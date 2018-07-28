@@ -23,7 +23,7 @@ export interface StateInfo {
 }
 
 export interface StateChangeRequest {
-    key: string;
+    key: string; // a.k.a "keyName"
     data: StateInfo;
 }
 

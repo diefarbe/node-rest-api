@@ -13,7 +13,7 @@ export function init(keyboard: KeyboardModule, settings: SettingsModule) {
             return profiles[key];
         },
         async create(data: any) {
-            const profile = settings.saveProfile(data, keyboard.getAllKeyData());
+            const profile = settings.saveProfile(data, keyboard.getWantedStatesForAllKeys());
             return Promise.resolve(profile);
         },
         async remove(id: string) {

@@ -6,12 +6,12 @@ export function init(keyboard: KeyboardModule, settings: SettingsModule) {
 
     return {
         async find() {
-            return keyboard.getAllKeyData();
+            return keyboard.getWantedStatesForAllKeys();
         },
         async get(key: string) {
             return {
                 key,
-                data: keyboard.getKeyData(key),
+                data: keyboard.getWantedStateForKey(key),
             };
         },
         async update(item: any, data: StateChangeRequest[]) {
