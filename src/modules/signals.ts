@@ -165,7 +165,7 @@ export class SignalsModule {
     }
 
     public loadPlugin(plugin: SignalProviderPlugin) {
-        // TODO ensure that there are no conflicting signals or duplicate tags
+        // TODO ensure that there are no conflicting signals or duplicate tags, possibly a conflicting signal results in the most recent plugin load taking precedence
         this.signalPlugins.push(plugin);
     }
 
@@ -212,18 +212,23 @@ export class SignalsModule {
                     this.signalValueUpdate(signal.name, signal1);
                 });
                 break;
+            case "endpoint":
+                // TODO add a /signal/$name API endpoint to modify this
+                break;
             default:
                 assertNever(source);
         }
 
         this.enabledSignalPlugins.push(enabledSignal);
     }
-
+    
     public setSignalProfile(signalProfile: SignalProfile | null) {
         if (signalProfile == null) signalProfile = this.nullSignalProfile();
         
         const profile = this.lookupProfile(signalProfile.profile);
-
+        
+        // TODO don't disable everything like this, detect the differences and do that
+        
         for (const signal of Object.assign([], this.enabledSignalPlugins)) {
             this.disableSignal(signal.pluginSignal);
         }
@@ -256,6 +261,7 @@ export class SignalsModule {
             }
         }
 
+        // TODO don't overwrite the keys that are controlled by signals
         this.keyboard.processKeyChanges(profile.defaultAnimations[this.layout]);
 
         this.activeSignalProfile = signalProfile;

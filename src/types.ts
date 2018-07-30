@@ -40,7 +40,7 @@ export interface SignalProviderPlugin {
     signals: PluginSignal[];
 }
 
-export type SignalSource = PollingSource | PollingCallbackSource | HookSource;
+export type SignalSource = PollingSource | PollingCallbackSource | HookSource | EndpointSource;
 
 export interface PollingSource {
     type: "polling";
@@ -57,6 +57,10 @@ export interface PollingCallbackSource {
 export interface HookSource {
     type: "hook";
     attach: (callback: (signal: Signal) => void) => { unhook: () => void };
+}
+
+export interface EndpointSource {
+    type: "endpoint";
 }
 
 export interface ChannelAnimation {
