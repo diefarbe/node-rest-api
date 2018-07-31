@@ -25,13 +25,13 @@ export class SettingsModule {
     private settings: { [key: string]: string } = {};
     private profiles: { [key: string]: Profile } = {};
 
-    public async init() {
+    public init() {
         this.logger.info("Loading settings...");
-        const shouldSetup = await this.shouldDoInitialSetup();
+        const shouldSetup = this.shouldDoInitialSetup();
         if (shouldSetup) {
-            await this.initialSetup();
+            this.initialSetup();
         }
-        await this.readSettings();
+        this.readSettings();
         this.logger.info("Settings load complete.");
     }
 
@@ -86,51 +86,35 @@ export class SettingsModule {
         return { id };
     }
 
-    private shouldDoInitialSetup() {
-        return new Promise<boolean>((resolve, reject) => {
-            fs.access(this.ourDirectory, fs.constants.F_OK, (err) => {
-                if (err) {
-                    resolve(true);
-                } else {
-                    resolve(false);
-                }
-            });
-        });
+    private shouldDoInitialSetup(): boolean {
+        try {
+            fs.accessSync(this.ourDirectory, fs.constants.F_OK);
+            return false;
+        } catch (e) {
+            return true;
+        }
     }
 
     private initialSetup() {
-        return new Promise<void>((resolve, reject) => {
-            fs.mkdirSync(this.ourDirectory);
-            fs.mkdirSync(this.profileDirectory);
-            fs.writeFile(this.settingsJSON,
-                JSON.stringify(SettingsModule.DefaultSettings), (err) => {
-                    if (err) {
-                        reject(err);
-                    }
-                    this.logger.info("Initial setup complete.");
-                    resolve();
-                });
-        });
+        fs.mkdirSync(this.ourDirectory);
+        fs.mkdirSync(this.profileDirectory);
+        fs.writeFileSync(this.settingsJSON, JSON.stringify(SettingsModule.DefaultSettings));
+        this.logger.info("Initial setup complete.");
     }
 
     private readSettings() {
-        return new Promise<void>((resolve, reject) => {
-            fs.readFile(this.settingsJSON, (err, data) => {
-                if (data === undefined) throw new Error(this.settingsJSON + " is corrupted");
-                this.settings = JSON.parse(data.toString("utf8"));
+        let data = fs.readFileSync(this.settingsJSON);
+        if (data === undefined) throw new Error(this.settingsJSON + " is corrupted");
+        this.settings = JSON.parse(data.toString("utf8"));
 
-                const paths = fs.readdirSync(this.profileDirectory);
-                for (const path of paths) {
-                    if (path.endsWith(".json")) {
-                        this.logger.info("Found profile:", this.profileDirectory + "/" + path);
-                        this.loadProfileIntoMemory(this.profileDirectory + "/" + path);
-                    }
-                }
-                this.profiles.default = require("../../assets/profiles/dim.json");
-
-                resolve();
-            });
-        });
+        const paths = fs.readdirSync(this.profileDirectory);
+        for (const path of paths) {
+            if (path.endsWith(".json")) {
+                this.logger.info("Found profile:", this.profileDirectory + "/" + path);
+                this.loadProfileIntoMemory(this.profileDirectory + "/" + path);
+            }
+        }
+        this.profiles.default = require("../../assets/profiles/dim.json");
     }
 
     private loadProfileIntoMemory(path: string) {

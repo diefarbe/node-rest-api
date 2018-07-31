@@ -19,6 +19,7 @@ export class KeyboardModule {
     private currentState = new State();
     private wantedState = new State();
     private syncTimer: NodeJS.Timer | null = null;
+    private setupTimer: NodeJS.Timer | null = null;
 
     constructor(layout: string) {
         this.layout = layout;
@@ -35,7 +36,7 @@ export class KeyboardModule {
                 if (device.vendorId === 9456) {
                     this.logger.info("Found a keyboard.");
                     // wait for the keyboard to boot
-                    setTimeout(() => {
+                    this.setupTimer = setTimeout(() => {
                         this.internalSetupKeyboard();
                     }, 2000);
                 }
@@ -50,11 +51,11 @@ export class KeyboardModule {
         usbDetect.on("add:9456", (device: any) => {
             this.logger.info("Added a keyboard.");
             // wait for the keyboard to boot
-            setTimeout(() => {
+            this.setupTimer = setTimeout(() => {
                 this.internalSetupKeyboard();
             }, 2000);
         });
-        
+
         /*
         Catches any unsynced changes. Although, most of the time the sync should happen immediately.
          */
@@ -68,9 +69,17 @@ export class KeyboardModule {
             this.syncTimer = null;
         }
         
-        // restore the default rainbow pattern
-        this.restoreHardwareProfile();
-        
+        // stop any delayed initializations
+        if (this.setupTimer != null) {
+            clearTimeout(this.setupTimer);
+            this.setupTimer = null;
+        }
+
+        if (this.isInitalized) {
+            // restore the default rainbow pattern
+            this.restoreHardwareProfile();
+        }
+
         // disconnect from the keyboard
         this.hardwareKeyboard.close();
     }
@@ -118,7 +127,7 @@ export class KeyboardModule {
                 data: this.getWantedStateForKey(keyName)
             });
         }
-        
+
         return keys;
     }
 
