@@ -15,7 +15,9 @@ addons:
 services:
   - docker
   
-script: docker build -t diefarbe/sich-ausruhen .
+script:
+  - npm run build
+  - docker build -t diefarbe/sich-ausruhen .
 
 deploy:
   provider: script
