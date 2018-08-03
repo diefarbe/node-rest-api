@@ -82,6 +82,12 @@ async function startProgram() {
         logger.info("Cleanup complete.");
     }
 
+    /*
+    Note that we catch several kill signals. If we only listened to "exit", the event would never happen because the
+    engine doesn't exit until the HTTP server shuts down. As such, we need to hook to various other kill signals to
+    shut everything down first.
+     */
+
     // ctrl+c
     process.on("SIGINT", () => {
         logger.info("SIGINT");
