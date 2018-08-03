@@ -2,6 +2,7 @@ import { StateChangeRequest, Profile } from "../types";
 import * as fs from "fs";
 import { KeyboardEvents } from "../utils/KeyboardEvents";
 import { Logger } from "../utils/Logger";
+import { DefaultSettings } from "./settings";
 
 /**
  * The Profile module, in charge of keeping the profile set on an attached keyboard
@@ -75,7 +76,7 @@ export class ProfileModule {
         fs.mkdirSync(this.profileDirectory);
     }
 
-    onSettingsChanged = (settings: any) => {
+    onSettingsChanged = (settings: DefaultSettings) => {
         this.currentProfileUUID = settings.profile;
         this.currentLayout = settings.layout;
         this.profiles = {};

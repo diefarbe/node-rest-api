@@ -131,10 +131,6 @@ export class IndicatorModule {
         }
     }];
 
-    private resetKeyGroup(keys: string[]) {
-        this.keyboardEvents.on("onResetProfileKeys", keys, false);
-    }
-
     getInfo() {
         return this.signalMappings;
     }

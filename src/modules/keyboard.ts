@@ -2,6 +2,7 @@ import { KeyInfo, IKeyMapCulture, Keyboard, ChannelState, KeyModel, KeyState } f
 import { Logger } from "../utils/Logger";
 import { KeyboardEvents } from "../utils/KeyboardEvents";
 import { ChannelInfo, StateChangeRequest, StateInfo } from "../types";
+import { DefaultSettings } from "./settings";
 const usbDetect = require("usb-detection");
 
 class State {
@@ -19,7 +20,7 @@ class State {
  * changes the keyboard layout so we can adjust our states. 
  * 
  * onStateChangeRequested - When a signal or profile needs to alter the current state. They emit
- * a onStateChangeREqueste event. This event is then added to the wanted state and will sync to the 
+ * a onStateChangeRequested event. This event is then added to the wanted state and will sync to the 
  * keyboard once 1000ms passes, or the user has requested an immediate sync.
  * 
  */
@@ -137,7 +138,7 @@ export class KeyboardModule {
         return keys;
     }
 
-    private onSettingsChanged = (settings: any) => {
+    private onSettingsChanged = (settings: DefaultSettings) => {
         this.keysInLayout = KeyInfo[settings.layout];
     }
 
