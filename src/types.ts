@@ -132,6 +132,5 @@ export interface Profile {
 }
 
 export interface SignalProfile {
-    profile: string;
     enabledSignals: string[] | string;
 }

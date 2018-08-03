@@ -1,33 +1,58 @@
-import { ChannelState, Keyboard, KeyInfo, KeyModel, KeyState } from "@diefarbe/lib";
+import { KeyInfo, IKeyMapCulture, Keyboard, ChannelState, KeyModel, KeyState } from "@diefarbe/lib";
+import { Logger } from "../utils/Logger";
+import { KeyboardEvents } from "../utils/KeyboardEvents";
 import { ChannelInfo, StateChangeRequest, StateInfo } from "../types";
-import { SettingsModule } from "./settings";
-import { Logger } from "../log";
-import { IKeyMapCulture } from "@diefarbe/lib/src/internal/models/index";
-
 const usbDetect = require("usb-detection");
 
-export class KeyboardModule {
-    private readonly logger = new Logger("KeyboardModule");
+class State {
+    [keyName: string]: StateInfo;
+}
 
+/**
+ * The Keyboard Module
+ * 
+ * This module is in charge of holding, reporting, and changing the keyboard state.
+ * 
+ * The keyboard listens to three different events from our keyboard events. These are:
+ * 
+ * onSettingsChanged - Since the keyboard does not hold the layout, we need to know when the user
+ * changes the keyboard layout so we can adjust our states. 
+ * 
+ * onStateChangeRequested - When a signal or profile needs to alter the current state. They emit
+ * a onStateChangeREqueste event. This event is then added to the wanted state and will sync to the 
+ * keyboard once 1000ms passes, or the user has requested an immediate sync.
+ * 
+ */
+export class KeyboardModule {
+
+    private readonly logger = new Logger("KeyboardModule");
     private readonly hardwareKeyboard: Keyboard;
-    private readonly layout: string;
-    private readonly keysInLayout: IKeyMapCulture;
-    private firmwareVersionString: string = "0.0.0";
-    private isInitalized: boolean = false;
+    private readonly currentState = new State();
+    private readonly wantedState = new State();
+
+    private syncTimer: NodeJS.Timer | null = null;
+    private keyboardConnected: boolean = false;
+
+    private keysInLayout: IKeyMapCulture;
+
+    private keyboardInfo: { firmware: string } = { firmware: "unknown" }
 
     private needsSync = false; // true when wantedState differs from currentState
-    private currentState = new State();
-    private wantedState = new State();
-    private syncTimer: NodeJS.Timer | null = null;
-    private setupTimer: NodeJS.Timer | null = null;
 
-    constructor(layout: string) {
-        this.layout = layout;
-        this.keysInLayout = KeyInfo[this.layout];
+    constructor(private keyboardEvents: KeyboardEvents) {
         this.hardwareKeyboard = new Keyboard();
+        this.keysInLayout = KeyInfo["en-US"];
     }
 
-    public init() {
+    /**
+     * Initializes this module
+     * 
+     * We start monitoring the USB ports for the keyboard.
+     */
+    async init(): Promise<void> {
+        this.keyboardEvents.addListener("onSettingsChanged", this.onSettingsChanged);
+        this.keyboardEvents.addListener("onStateChangeRequested", this.onStateChangeRequested);
+
         usbDetect.startMonitoring();
 
         // There's a filtered search, but it seems broken...
@@ -35,78 +60,59 @@ export class KeyboardModule {
             for (const device of devices) {
                 if (device.vendorId === 9456) {
                     this.logger.info("Found a keyboard.");
-                    // wait for the keyboard to boot
-                    this.setupTimer = setTimeout(() => {
-                        this.internalSetupKeyboard();
-                    }, 2000);
+                    this.setupKeyboard()
                 }
             }
         });
 
         usbDetect.on("remove:9456", (device: any) => {
             this.logger.info("Removed a keyboard.");
-            this.cleanupKeyboardDisconnect();
+            this.disconnectKeyboard();
         });
 
         usbDetect.on("add:9456", (device: any) => {
             this.logger.info("Added a keyboard.");
-            // wait for the keyboard to boot
-            this.setupTimer = setTimeout(() => {
-                this.internalSetupKeyboard();
-            }, 2000);
+            this.setupKeyboard()
         });
 
-        /*
-        Catches any unsynced changes. Although, most of the time the sync should happen immediately.
-         */
         this.syncTimer = setInterval(() => this.sync(), 1000);
     }
 
-    public close() {
+    async deinit(): Promise<void> {
+        this.keyboardEvents.removeListener("onSettingsChanged", this.onSettingsChanged);
+        this.keyboardEvents.removeListener("onStateChangeRequested", this.onStateChangeRequested);
+
         // stop the syncing
         if (this.syncTimer != null) {
             clearTimeout(this.syncTimer);
             this.syncTimer = null;
         }
-        
-        // stop any delayed initializations
-        if (this.setupTimer != null) {
-            clearTimeout(this.setupTimer);
-            this.setupTimer = null;
-        }
 
-        if (this.isInitalized) {
-            // restore the default rainbow pattern
-            this.restoreHardwareProfile();
-        }
+        // restore the default rainbow pattern
+        this.restoreHardwareProfile();
 
-        // disconnect from the keyboard
-        this.hardwareKeyboard.close();
-    }
+        // stop monitoring the usbs
+        usbDetect.stopMonitoring();
 
-    public hasKeyboard() {
-        return this.isInitalized;
+        // disconnect from any current keyboard
+        this.disconnectKeyboard();
     }
 
     /**
-     * Returns basic information about the keyboard.
+     * returns the current keyboard info including firmware version and key states
      */
-    public getBasicInfo(): { firmware: string | null } {
-        if (this.isInitalized) {
-            return {
-                firmware: this.firmwareVersionString,
-            };
-        }
+    getInfo() {
         return {
-            firmware: null,
-        };
+            info: this.keyboardInfo,
+            state: this.getWantedStatesForAllKeys(),
+        }
     }
 
     /**
      * Given a single key, return the wanted state of that key.
      * @param keyName a key to return
      */
-    public getWantedStateForKey(keyName: string): StateInfo {
+    private getWantedStateForKey(keyName: string): StateInfo {
         let goal = this.wantedState[keyName];
         if (goal !== undefined) {
             return goal;
@@ -131,12 +137,21 @@ export class KeyboardModule {
         return keys;
     }
 
+    private onSettingsChanged = (settings: any) => {
+        this.keysInLayout = KeyInfo[settings.layout];
+    }
+
+    private onStateApplyRequested(): void {
+        this.hardwareKeyboard.freezeEffects();
+        this.hardwareKeyboard.apply();
+    }
+
     /**
      * Updates the wanted state with the provided key changes.
      * @param data an array of state changes
      * @param sync whether or not to immediately sync the changes
      */
-    public processKeyChanges(data: StateChangeRequest[], sync = true) {
+    public onStateChangeRequested = (data: StateChangeRequest[], sync = true) => {
         for (const change of data) {
             // check if we already have this state wanted
             if (JSON.stringify(this.wantedState[change.key]) !== JSON.stringify(change.data)) {
@@ -153,11 +168,46 @@ export class KeyboardModule {
     }
 
     /**
+     * Sets up a keyboard after waiting 2000ms
+     */
+    private setupKeyboard() {
+        setTimeout(() => {
+            try {
+                this.logger.info("Initializing keyboard...");
+                this.hardwareKeyboard.find();
+
+                // we found a keyboard, let's go ahead and handle taking over it
+                this.hardwareKeyboard.initialize();
+                this.keyboardInfo.firmware = this.hardwareKeyboard.getKeyboardData().firmware;
+                this.keyboardConnected = true;
+
+
+                this.logger.info("Keyboard initialization complete.");
+                this.keyboardEvents.emit("onKeyboardConnected");
+
+            } catch (e) {
+                this.disconnectKeyboard();
+                this.logger.warn("Keyboard initialization failed.", e);
+            }
+        }, 2000);
+    }
+
+    /**
+     * Cleans up the keyboard connection from the node-lib
+     */
+    private disconnectKeyboard() {
+        this.keyboardConnected = false;
+        this.keyboardInfo.firmware = "unknown";
+        this.hardwareKeyboard.close();
+    }
+
+    /**
      * Syncs any pending changes, if necessary.
      */
-    public sync() {
+    private sync() {
         // only sync if it needs it, and there is actually a keyboard
-        if (this.needsSync && this.isInitalized) {
+        this.logger.info("Tick");
+        if (this.needsSync && this.keyboardConnected) {
             try {
                 let changed = false;
                 for (const keyName in this.wantedState) {
@@ -188,8 +238,7 @@ export class KeyboardModule {
 
                 // only apply if we've sent some data
                 if (changed) {
-                    this.hardwareKeyboard.freezeEffects();
-                    this.hardwareKeyboard.apply();
+                    this.onStateApplyRequested();
                 }
 
                 // we've successfully synced everything!
@@ -198,32 +247,9 @@ export class KeyboardModule {
                 this.logger.warn(e);
             }
         }
-    }
+        this.keyboardEvents.emit("onProfileTickRequest");
+        this.keyboardEvents.emit("onSignalTickRequest");
 
-    private internalSetupKeyboard() {
-        try {
-            this.logger.info("Initializing keyboard...");
-            this.hardwareKeyboard.find();
-
-            // we found a keyboard, let's go ahead and handle taking over it
-            this.hardwareKeyboard.initialize();
-            this.firmwareVersionString = this.hardwareKeyboard.getKeyboardData().firmware;
-
-            this.currentState = new State();
-            this.needsSync = true;
-            this.sync();
-
-            this.isInitalized = true;
-            this.logger.info("Keyboard initialization complete.");
-        } catch (e) {
-            this.isInitalized = false;
-            this.logger.warn("Keyboard initialization failed.", e);
-        }
-    }
-
-    private cleanupKeyboardDisconnect() {
-        this.isInitalized = false;
-        this.hardwareKeyboard.close();
     }
 
     private internalSendKeyData(key: KeyModel, channel: "red" | "green" | "blue", data: ChannelInfo) {
@@ -269,9 +295,4 @@ export class KeyboardModule {
         }
         this.hardwareKeyboard.apply();
     }
-
-}
-
-class State {
-    [keyName: string]: StateInfo;
 }
