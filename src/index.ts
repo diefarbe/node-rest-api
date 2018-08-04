@@ -1,25 +1,33 @@
-import * as InitEndpoint from "./endpoints/info";
-import * as KeysEndpoint from "./endpoints/keys";
-import * as ProfileEndpoint from "./endpoints/profiles";
+import * as StateEndpoint from "./endpoints/keyboard";
+import * as ProfileEndpoint from "./endpoints/profile";
+import * as SettingsEndpoint from "./endpoints/settings";
+import * as SignalsEndpoint from "./endpoints/signals";
+import { IndicatorModule } from "./modules/indicators";
 import { KeyboardModule } from "./modules/keyboard";
+import { ProfileModule } from "./modules/profile";
 import { SettingsModule } from "./modules/settings";
 import { SignalsModule } from "./modules/signals";
-import { Logger } from "./log";
+import { KeyboardEvents } from "./utils/KeyboardEvents";
+import { Logger } from "./utils/Logger";
+
 import { homedir } from "os";
 
-const feathers = require("@feathersjs/feathers");
-const express = require("@feathersjs/express");
+// tslint:disable-next-line:no-var-requires
 const program = require("commander");
+
+// tslint:disable-next-line:no-var-requires
 const pack = require("../package.json");
 
-let logger = new Logger("index.ts");
-
 program
-    .version(pack.version, '-v, --version')
+    .version(pack.version, "-v, --version")
     .option("--config <path>", "specify the config directory", homedir() + "/.config/diefarbe")
     .parse(process.argv);
 
 function configureFeathers() {
+
+    const feathers = require("@feathersjs/feathers");
+    const express = require("@feathersjs/express");
+
     const app = express(feathers());
 
     // Turn on JSON body parsing for REST services
@@ -38,31 +46,32 @@ function configureFeathers() {
 }
 
 async function startProgram() {
+    const logger = new Logger("index.ts");
+
     logger.info("Hello.");
 
     // setup the main part of the api
     const app = configureFeathers();
 
-    // create a settings object
-    const settings = new SettingsModule(program.config);
+    const events = new KeyboardEvents();
+    const settings = new SettingsModule(program.config, events);
 
-    // load or create our settings for the first time
+    const keyboard = new KeyboardModule(events);
+    const signals = new SignalsModule(events);
+    const indicator = new IndicatorModule(events);
+    const profile = new ProfileModule(program.config, events);
+
+    for (const module of [keyboard, signals, indicator, profile]) {
+        await module.init();
+    }
+
+    // Now that all our modules are up and ready to go, startup settings
     await settings.init();
 
-    // setup a keyboard object
-    const keyboard = new KeyboardModule(settings.getLayout());
-
-    // Start connecting to the keyboard (if one exists)
-    // If not, wait for one to connect from here on out.
-    keyboard.init();
-
-    const signals = new SignalsModule(settings, keyboard);
-
-    signals.signalsInit();
-
-    app.use("info", InitEndpoint.init(keyboard, settings));
-    app.use("profiles", ProfileEndpoint.init(keyboard, settings));
-    app.use("keys", KeysEndpoint.init(keyboard, settings));
+    app.use("settings", SettingsEndpoint.init(settings));
+    app.use("profiles", ProfileEndpoint.init(profile, keyboard));
+    app.use("keyboard", StateEndpoint.init(keyboard));
+    app.use("signals", SignalsEndpoint.init(indicator, signals));
 
     const server = app.listen(3030);
 
@@ -76,8 +85,11 @@ async function startProgram() {
         }
         logger.info("Cleaning up...");
         server.close();
-        signals.setSignalProfile(null); // detaches from signal handlers
-        keyboard.close();
+
+        for (const module of [keyboard, signals, indicator, profile]) {
+            module.deinit();
+        }
+
         cleanedUp = true;
         logger.info("Cleanup complete.");
     }
