@@ -31,7 +31,8 @@ export class KeyboardModule {
     private readonly currentState = new State();
     private readonly wantedState = new State();
 
-    private syncTimer: NodeJS.Timer | null = null;
+    private redrawTimer: NodeJS.Timer | null = null;
+    private setupKeyboardTimeout: NodeJS.Timer | null = null;
     private keyboardConnected: boolean = false;
 
     private keysInLayout: IKeyMapCulture;
@@ -76,17 +77,17 @@ export class KeyboardModule {
             this.setupKeyboard()
         });
 
-        this.syncTimer = setInterval(() => this.sync(), 1000);
+        this.redrawTimer = setInterval(() => this.redrawKeyboard(), 1000);
     }
 
     deinit() {
         this.keyboardEvents.removeListener("onSettingsChanged", this.onSettingsChanged);
         this.keyboardEvents.removeListener("onStateChangeRequested", this.onStateChangeRequested);
 
-        // stop the syncing
-        if (this.syncTimer != null) {
-            clearTimeout(this.syncTimer);
-            this.syncTimer = null;
+        // stop the redrawTimer
+        if (this.redrawTimer != null) {
+            clearTimeout(this.redrawTimer);
+            this.redrawTimer = null;
         }
 
         // restore the default rainbow pattern
@@ -97,6 +98,14 @@ export class KeyboardModule {
 
         // disconnect from any current keyboard
         this.disconnectKeyboard();
+    }
+
+    redrawKeyboard() {
+        this.logger.info("Tick");
+        this.keyboardEvents.emit("onProfileTickRequest");
+        this.keyboardEvents.emit("onSignalTickRequest");
+
+        this.sync();
     }
 
     /**
@@ -172,7 +181,11 @@ export class KeyboardModule {
      * Sets up a keyboard after waiting 2000ms
      */
     private setupKeyboard() {
-        setTimeout(() => {
+        if (this.setupKeyboardTimeout != null) {
+            clearTimeout(this.setupKeyboardTimeout);
+            this.setupKeyboardTimeout = null;
+        }
+        this.setupKeyboardTimeout = setTimeout(() => {
             try {
                 this.logger.info("Initializing keyboard...");
                 this.hardwareKeyboard.find();
@@ -207,7 +220,6 @@ export class KeyboardModule {
      */
     private sync() {
         // only sync if it needs it, and there is actually a keyboard
-        this.logger.info("Tick");
         if (this.needsSync && this.keyboardConnected) {
             try {
                 let changed = false;
@@ -248,8 +260,6 @@ export class KeyboardModule {
                 this.logger.warn(e);
             }
         }
-        this.keyboardEvents.emit("onProfileTickRequest");
-        this.keyboardEvents.emit("onSignalTickRequest");
 
     }
 
@@ -286,6 +296,7 @@ export class KeyboardModule {
 
         aState = aState.setTransition(data.transition || false);
 
+        this.logger.info("Sending data to keys");
         this.hardwareKeyboard.setKeyColorChannel(aState);
     }
 
