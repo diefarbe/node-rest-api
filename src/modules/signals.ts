@@ -12,6 +12,7 @@ interface IEnabledSignal {
     pluginSignal: IPluginSignal;
     timer: NodeJS.Timer | null;
     hook: { unhook: () => void } | null;
+    name: string;
 }
 
 export class SignalsModule {
@@ -59,9 +60,17 @@ export class SignalsModule {
     }
 
     public setEnabledSignals(signalsToEnable: string[]) {
-        // TODO don't disable everything like this, detect the differences and do that
-        for (const signal of Object.assign([], this.enabledSignalPlugins)) {
-            this.disableSignal(signal.pluginSignal);
+
+        for (const enabledSignal of this.enabledSignalPlugins) {
+            const enableIndex = signalsToEnable.indexOf(enabledSignal.name);
+            const alreadyEnabled = enableIndex > -1;
+            if (alreadyEnabled) {
+                // remove from array of signals to enable so we don't double enable it
+                signalsToEnable.splice(enableIndex, 1);
+            } else {
+                // this signal is not part of the enabled list, disable it
+                this.disableSignal(enabledSignal.pluginSignal);
+            }
         }
 
         // we have a list of signals
@@ -96,6 +105,7 @@ export class SignalsModule {
                     enabled.hook.unhook();
                 }
                 this.enabledSignalPlugins.splice(i, 1);
+                this.keyboardEvents.emit("onSignalDisabled", signal.name);
                 return;
             }
         }
@@ -104,6 +114,7 @@ export class SignalsModule {
     private enableSignal(signal: IPluginSignal) {
         const enabledSignal: IEnabledSignal = {
             hook: null,
+            name: signal.name,
             pluginSignal: signal,
             timer: null,
         };

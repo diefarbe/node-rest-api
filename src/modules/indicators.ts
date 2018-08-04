@@ -15,7 +15,7 @@ export class IndicatorModule {
     private readonly logger = new Logger("KeyboardModule");
 
     private layout: string = "unknown";
-    private changes: { [key: string]: IStateInfo } = {};
+    private changes: { [key: string]: { [key: string]: IStateInfo } } = {};
 
     // TODO ensure no gaps in ranges and they fall between min and max
     // TODO remove this hardcoded stuff
@@ -122,24 +122,32 @@ export class IndicatorModule {
         this.keyboardEvents.addListener("onSignalValueUpdated", this.onSignalValueUpdated);
         this.keyboardEvents.addListener("onSettingsChanged", this.onSettingsChanged);
         this.keyboardEvents.addListener("onSignalTickRequest", this.onSignalTickRequest);
+        this.keyboardEvents.addListener("onSignalDisabled", this.onSignalDisabled);
     }
 
     public deinit() {
         this.keyboardEvents.removeListener("onSignalValueUpdated", this.onSignalValueUpdated);
         this.keyboardEvents.removeListener("onSettingsChanged", this.onSettingsChanged);
         this.keyboardEvents.removeListener("onSignalTickRequest", this.onSignalTickRequest);
+        this.keyboardEvents.removeListener("onSignalDisabled", this.onSignalDisabled);
     }
 
     public onSignalTickRequest = () => {
-        const stateChagnes: IStateChangeRequest[] = [];
-        for (const key of Object.keys(this.changes)) {
-            stateChagnes.push({
-                data: this.changes[key],
-                key,
-            });
+        const stateChanges: IStateChangeRequest[] = [];
+        for (const signalName of Object.keys(this.changes)) {
+            for (const key of Object.keys(this.changes[signalName])) {
+                stateChanges.push({
+                    data: this.changes[signalName][key],
+                    key,
+                });
+            }
         }
-        this.keyboardEvents.emit("onStateChangeRequested", stateChagnes, false);
+        this.keyboardEvents.emit("onStateChangeRequested", stateChanges, false);
+    }
 
+    public onSignalDisabled = (signal: string) => {
+        this.logger.info("Disabled:" + signal);
+        delete this.changes[signal];
     }
 
     public onSettingsChanged = (settings: any) => {
@@ -157,6 +165,9 @@ export class IndicatorModule {
      */
     private onSignalValueUpdated = (signal: string, value: Signal) => {
         this.logger.info("Signal Value updated: " + signal + ":" + value);
+        if (typeof this.changes[signal] === "undefined") {
+            this.changes[signal] = {};
+        }
         for (const sig of this.signalMappings) {
             if (sig.signal === signal) {
                 const lay = sig.layouts[this.layout];
@@ -186,7 +197,7 @@ export class IndicatorModule {
                     // send them to the keys
                     for (const group of lay.keyGroups) {
                         for (const key of group) {
-                            this.changes[key] = data;
+                            this.changes[signal][key] = data;
                         }
                     }
                 } else if (lay.mode === "multi") {
@@ -202,13 +213,11 @@ export class IndicatorModule {
                     }
                     if (data == null) { throw new Error("ranges invalid"); }
 
-                    const changes: IStateChangeRequest[] = [];
-
                     // get colors for activated keys
                     const numKeysActivated = Math.floor(lay.keyGroups.length * val / sig.max);
                     for (let i = 0; i < numKeysActivated; i++) {
                         for (const key of lay.keyGroups[i]) {
-                            this.changes[key] = data;
+                            this.changes[signal][key] = data;
                         }
                     }
 

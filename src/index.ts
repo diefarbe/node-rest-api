@@ -62,7 +62,7 @@ async function startProgram() {
     const profile = new ProfileModule(program.config, events);
 
     for (const module of [keyboard, signals, indicator, profile]) {
-        await module.init();
+        module.init();
     }
 
     // Now that all our modules are up and ready to go, startup settings
