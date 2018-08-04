@@ -75,7 +75,6 @@ export class SettingsModule {
                     ...savedSettings,
                 };
                 this.writeJsonToFile(this.settings);
-                this.events.settingsUpdated(this.settings);
                 resolve();
             });
         });
