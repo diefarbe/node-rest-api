@@ -73,7 +73,7 @@ async function startProgram() {
     app.use("keyboard", StateEndpoint.init(keyboard));
     app.use("signals", SignalsEndpoint.init(indicator, signals));
 
-    const server = app.listen(3030);
+    const server = app.listen(3030, "localhost");
 
     server.on("listening", () => logger.info("Feathers REST API started at http://localhost:3030"));
 
