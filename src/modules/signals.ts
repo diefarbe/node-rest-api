@@ -59,7 +59,7 @@ export class SignalsModule {
 
     }
 
-    public setEnabledSignals(signalsToEnable: string[]) {
+    private setEnabledSignals(signalsToEnable: string[]) {
 
         for (const enabledSignal of this.enabledSignalPlugins) {
             const enableIndex = signalsToEnable.indexOf(enabledSignal.name);

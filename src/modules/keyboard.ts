@@ -97,13 +97,6 @@ export class KeyboardModule {
         this.disconnectKeyboard();
     }
 
-    public redrawKeyboard() {
-        this.logger.info("Tick");
-        this.keyboardEvents.requestDraw();
-
-        this.sync();
-    }
-
     /**
      * returns the current keyboard info including firmware version and key states
      */
@@ -114,22 +107,11 @@ export class KeyboardModule {
         };
     }
 
-    /**
-     * Returns the wanted states of all keys.
-     */
-    public getWantedStatesForAllKeys() {
-        const keys: IStateChangeRequest[] = [];
+    private redrawKeyboard() {
+        this.logger.info("Tick");
+        this.keyboardEvents.requestDraw();
 
-        for (const keyName in this.keysInLayout) {
-            if (this.keysInLayout.hasOwnProperty(keyName)) {
-                keys.push({
-                    data: this.getWantedStateForKey(keyName),
-                    key: keyName,
-                });
-            }
-        }
-
-        return keys;
+        this.sync();
     }
 
     /**
@@ -137,7 +119,7 @@ export class KeyboardModule {
      * @param data an array of state changes
      * @param sync whether or not to immediately sync the changes
      */
-    public onStateChangeRequested = (data: IStateChangeRequest[], sync = true) => {
+    private onStateChangeRequested = (data: IStateChangeRequest[], sync = true) => {
         for (const change of data) {
             // check if we already have this state wanted
             if (JSON.stringify(this.wantedState[change.key]) !== JSON.stringify(change.data)) {
@@ -151,6 +133,24 @@ export class KeyboardModule {
             // instead of waiting for the next sync, sync the changes now
             this.sync();
         }
+    }
+
+    /**
+     * Returns the wanted states of all keys.
+     */
+    private getWantedStatesForAllKeys() {
+        const keys: IStateChangeRequest[] = [];
+
+        for (const keyName in this.keysInLayout) {
+            if (this.keysInLayout.hasOwnProperty(keyName)) {
+                keys.push({
+                    data: this.getWantedStateForKey(keyName),
+                    key: keyName,
+                });
+            }
+        }
+
+        return keys;
     }
 
     /**

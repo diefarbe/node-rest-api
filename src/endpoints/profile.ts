@@ -30,7 +30,7 @@ export function init(profile: ProfileModule, keyboard: KeyboardModule) {
             });
         },
         async create(data: any) {
-            const newProfile = profile.saveProfile(data, keyboard.getWantedStatesForAllKeys());
+            const newProfile = profile.saveProfile(data, keyboard.getInfo().state);
             return Promise.resolve(newProfile);
         },
         async remove(id: string) {

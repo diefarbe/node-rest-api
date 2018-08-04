@@ -76,7 +76,7 @@ export class ProfileModule {
         return { id };
     }
 
-    public onSettingsChanged = (settings: DefaultSettings) => {
+    private onSettingsChanged = (settings: DefaultSettings) => {
         this.currentProfileUUID = settings.profile;
         this.currentLayout = settings.layout;
         this.profiles = {};
@@ -85,7 +85,7 @@ export class ProfileModule {
         this.profiles.default = require("../../assets/profiles/dim.json");
     }
 
-    public onRedrawRequested = () => {
+    private onRedrawRequested = () => {
         const ourProfile = this.profiles[this.currentProfileUUID];
         const changes = ourProfile.defaultAnimations[this.currentLayout];
         this.keyboardEvents.requestStateChange(changes);
