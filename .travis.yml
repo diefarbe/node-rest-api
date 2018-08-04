@@ -17,6 +17,7 @@ services:
   
 script:
   - npm run build
+  - npm run lint
   - docker build -t diefarbe/sich-ausruhen .
 
 deploy:
