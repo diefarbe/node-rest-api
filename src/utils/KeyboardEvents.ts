@@ -1,2 +1,2 @@
-const EventEmitter = require('events');
+import EventEmitter from "events";
 export class KeyboardEvents extends EventEmitter {}

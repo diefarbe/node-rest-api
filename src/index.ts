@@ -1,29 +1,33 @@
+import * as StateEndpoint from "./endpoints/keyboard";
+import * as ProfileEndpoint from "./endpoints/profile";
 import * as SettingsEndpoint from "./endpoints/settings";
 import * as SignalsEndpoint from "./endpoints/signals";
-import * as ProfileEndpoint from "./endpoints/profile";
-import * as StateEndpoint from "./endpoints/keyboard";
+import { IndicatorModule } from "./modules/indicators";
 import { KeyboardModule } from "./modules/keyboard";
+import { ProfileModule } from "./modules/profile";
 import { SettingsModule } from "./modules/settings";
 import { SignalsModule } from "./modules/signals";
-import { Logger } from "./utils/Logger";
 import { KeyboardEvents } from "./utils/KeyboardEvents";
-import { IndicatorModule } from "./modules/indicators";
-import { ProfileModule } from "./modules/profile";
+import { Logger } from "./utils/Logger";
 
 import { homedir } from "os";
 
-const feathers = require("@feathersjs/feathers");
-const express = require("@feathersjs/express");
+// tslint:disable-next-line:no-var-requires
 const program = require("commander");
+
+// tslint:disable-next-line:no-var-requires
 const pack = require("../package.json");
 
-
 program
-    .version(pack.version, '-v, --version')
+    .version(pack.version, "-v, --version")
     .option("--config <path>", "specify the config directory", homedir() + "/.config/diefarbe")
     .parse(process.argv);
 
 function configureFeathers() {
+
+    const feathers = require("@feathersjs/feathers");
+    const express = require("@feathersjs/express");
+
     const app = express(feathers());
 
     // Turn on JSON body parsing for REST services
@@ -42,7 +46,7 @@ function configureFeathers() {
 }
 
 async function startProgram() {
-    let logger = new Logger("index.ts");
+    const logger = new Logger("index.ts");
 
     logger.info("Hello.");
 

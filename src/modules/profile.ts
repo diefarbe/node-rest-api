@@ -1,5 +1,5 @@
-import { StateChangeRequest, Profile } from "../types";
 import * as fs from "fs";
+import { IProfile, IStateChangeRequest } from "../types";
 import { KeyboardEvents } from "../utils/KeyboardEvents";
 import { Logger } from "../utils/Logger";
 import { DefaultSettings } from "./settings";
@@ -17,7 +17,7 @@ export class ProfileModule {
 
     private readonly logger = new Logger("ProfileModule");
 
-    private profiles: { [key: string]: Profile } = {};
+    private profiles: { [key: string]: IProfile } = {};
     private readonly profileDirectory: string;
     private currentProfileUUID: string = "default";
     private currentLayout: string = "en-US";
@@ -26,35 +26,35 @@ export class ProfileModule {
         this.profileDirectory = configPath + "/profiles";
     }
 
-    init(): void {
+    public init(): void {
         this.keyboardEvents.addListener("onSettingsChanged", this.onSettingsChanged);
         this.keyboardEvents.addListener("onInitialSetupComplete", this.onInitialSetupComplete);
         this.keyboardEvents.addListener("onProfileTickRequest", this.onProfileTickRequest);
     }
 
-    deinit(): void {
+    public deinit(): void {
         this.keyboardEvents.removeListener("onSettingsChanged", this.onSettingsChanged);
         this.keyboardEvents.removeListener("onInitialSetupComplete", this.onInitialSetupComplete);
         this.keyboardEvents.removeListener("onProfileTickRequest", this.onProfileTickRequest);
     }
 
-    getInfo(profileUUID?: string) {
+    public getInfo(profileUUID?: string) {
         if (typeof profileUUID !== "undefined") {
             return this.profiles[profileUUID];
         }
         return this.profiles;
     }
 
-    public saveProfile(data: any, keys: StateChangeRequest[]) {
+    public saveProfile(data: any, keys: IStateChangeRequest[]) {
         return new Promise<any>((resolve, reject) => {
             const uuidv4 = require("uuid/v4");
             const uuid = uuidv4();
             const profile = {
-                name: data.name,
-                uuid,
                 defaultAnimations: {
                     "en-US": keys
                 },
+                name: data.name,
+                uuid,
             };
             this.profiles[uuid] = profile;
             fs.writeFile(this.profileDirectory + "/" + uuid + ".json", JSON.stringify(profile), (err) => {
@@ -72,17 +72,23 @@ export class ProfileModule {
         return { id };
     }
 
-    private onInitialSetupComplete = () => {
-        fs.mkdirSync(this.profileDirectory);
-    }
-
-    onSettingsChanged = (settings: DefaultSettings) => {
+    public onSettingsChanged = (settings: DefaultSettings) => {
         this.currentProfileUUID = settings.profile;
         this.currentLayout = settings.layout;
         this.profiles = {};
         this.loadProfilesFromPath(this.profileDirectory);
 
         this.profiles.default = require("../../assets/profiles/dim.json");
+    }
+
+    public onProfileTickRequest = () => {
+        const ourProfile = this.profiles[this.currentProfileUUID];
+        const changes = ourProfile.defaultAnimations[this.currentLayout];
+        this.keyboardEvents.emit("onStateChangeRequested", changes, false);
+    }
+
+    private onInitialSetupComplete = () => {
+        fs.mkdirSync(this.profileDirectory);
     }
 
     private loadProfilesFromPath(configDir: string) {
@@ -93,12 +99,6 @@ export class ProfileModule {
                 this.loadProfileIntoMemory(this.profileDirectory + "/" + path);
             }
         }
-    }
-
-    onProfileTickRequest = () => {
-        const ourProfile = this.profiles[this.currentProfileUUID];
-        const changes = ourProfile.defaultAnimations[this.currentLayout];
-        this.keyboardEvents.emit("onStateChangeRequested", changes, false);
     }
 
     private loadProfileIntoMemory(path: string) {

@@ -1,13 +1,10 @@
-import { KeyInfo, IKeyMapCulture, Keyboard, ChannelState, KeyModel, KeyState } from "@diefarbe/lib";
-import { Logger } from "../utils/Logger";
+import { ChannelState, IKeyMapCulture, Keyboard, KeyInfo, KeyModel, KeyState } from "@diefarbe/lib";
+import usbDetect from "usb-detection";
+import { IChannelInfo, IStateChangeRequest, IStateInfo } from "../types";
 import { KeyboardEvents } from "../utils/KeyboardEvents";
-import { ChannelInfo, StateChangeRequest, StateInfo } from "../types";
+import { Logger } from "../utils/Logger";
+import { State } from "../utils/State";
 import { DefaultSettings } from "./settings";
-const usbDetect = require("usb-detection");
-
-class State {
-    [keyName: string]: StateInfo;
-}
 
 /**
  * The Keyboard Module
@@ -37,7 +34,7 @@ export class KeyboardModule {
 
     private keysInLayout: IKeyMapCulture;
 
-    private keyboardInfo: { firmware: string } = { firmware: "unknown" }
+    private keyboardInfo: { firmware: string } = { firmware: "unknown" };
 
     private needsSync = false; // true when wantedState differs from currentState
 
@@ -51,7 +48,7 @@ export class KeyboardModule {
      * 
      * We start monitoring the USB ports for the keyboard.
      */
-    init() {
+    public init() {
         this.keyboardEvents.addListener("onSettingsChanged", this.onSettingsChanged);
         this.keyboardEvents.addListener("onStateChangeRequested", this.onStateChangeRequested);
 
@@ -62,7 +59,7 @@ export class KeyboardModule {
             for (const device of devices) {
                 if (device.vendorId === 9456) {
                     this.logger.info("Found a keyboard.");
-                    this.setupKeyboard()
+                    this.setupKeyboard();
                 }
             }
         });
@@ -74,13 +71,13 @@ export class KeyboardModule {
 
         usbDetect.on("add:9456", (device: any) => {
             this.logger.info("Added a keyboard.");
-            this.setupKeyboard()
+            this.setupKeyboard();
         });
 
         this.redrawTimer = setInterval(() => this.redrawKeyboard(), 1000);
     }
 
-    deinit() {
+    public deinit() {
         this.keyboardEvents.removeListener("onSettingsChanged", this.onSettingsChanged);
         this.keyboardEvents.removeListener("onStateChangeRequested", this.onStateChangeRequested);
 
@@ -100,7 +97,7 @@ export class KeyboardModule {
         this.disconnectKeyboard();
     }
 
-    redrawKeyboard() {
+    public redrawKeyboard() {
         this.logger.info("Tick");
         this.keyboardEvents.emit("onProfileTickRequest");
         this.keyboardEvents.emit("onSignalTickRequest");
@@ -111,49 +108,29 @@ export class KeyboardModule {
     /**
      * returns the current keyboard info including firmware version and key states
      */
-    getInfo() {
+    public getInfo() {
         return {
             info: this.keyboardInfo,
             state: this.getWantedStatesForAllKeys(),
-        }
-    }
-
-    /**
-     * Given a single key, return the wanted state of that key.
-     * @param keyName a key to return
-     */
-    private getWantedStateForKey(keyName: string): StateInfo {
-        let goal = this.wantedState[keyName];
-        if (goal !== undefined) {
-            return goal;
-        } else {
-            return this.currentState[keyName];
-        }
+        };
     }
 
     /**
      * Returns the wanted states of all keys.
      */
     public getWantedStatesForAllKeys() {
-        const keys: StateChangeRequest[] = [];
+        const keys: IStateChangeRequest[] = [];
 
         for (const keyName in this.keysInLayout) {
-            keys.push({
-                key: keyName,
-                data: this.getWantedStateForKey(keyName)
-            });
+            if (this.keysInLayout.hasOwnProperty(keyName)) {
+                keys.push({
+                    data: this.getWantedStateForKey(keyName),
+                    key: keyName,
+                });
+            }
         }
 
         return keys;
-    }
-
-    private onSettingsChanged = (settings: DefaultSettings) => {
-        this.keysInLayout = KeyInfo[settings.layout];
-    }
-
-    private onStateApplyRequested(): void {
-        this.hardwareKeyboard.freezeEffects();
-        this.hardwareKeyboard.apply();
     }
 
     /**
@@ -161,7 +138,7 @@ export class KeyboardModule {
      * @param data an array of state changes
      * @param sync whether or not to immediately sync the changes
      */
-    public onStateChangeRequested = (data: StateChangeRequest[], sync = true) => {
+    public onStateChangeRequested = (data: IStateChangeRequest[], sync = true) => {
         for (const change of data) {
             // check if we already have this state wanted
             if (JSON.stringify(this.wantedState[change.key]) !== JSON.stringify(change.data)) {
@@ -175,6 +152,28 @@ export class KeyboardModule {
             // instead of waiting for the next sync, sync the changes now
             this.sync();
         }
+    }
+
+    /**
+     * Given a single key, return the wanted state of that key.
+     * @param keyName a key to return
+     */
+    private getWantedStateForKey(keyName: string): IStateInfo {
+        const goal = this.wantedState[keyName];
+        if (goal !== undefined) {
+            return goal;
+        } else {
+            return this.currentState[keyName];
+        }
+    }
+
+    private onSettingsChanged = (settings: DefaultSettings) => {
+        this.keysInLayout = KeyInfo[settings.layout];
+    }
+
+    private onStateApplyRequested(): void {
+        this.hardwareKeyboard.freezeEffects();
+        this.hardwareKeyboard.apply();
     }
 
     /**
@@ -194,7 +193,6 @@ export class KeyboardModule {
                 this.hardwareKeyboard.initialize();
                 this.keyboardInfo.firmware = this.hardwareKeyboard.getKeyboardData().firmware;
                 this.keyboardConnected = true;
-
 
                 this.logger.info("Keyboard initialization complete.");
                 this.keyboardEvents.emit("onKeyboardConnected");
@@ -224,29 +222,32 @@ export class KeyboardModule {
             try {
                 let changed = false;
                 for (const keyName in this.wantedState) {
-                    const wantedKeyState = this.wantedState[keyName];
-                    const currentKeyState = this.currentState[keyName];
-                    const key = this.keysInLayout[keyName];
+                    if (this.wantedState.hasOwnProperty(keyName)) {
 
-                    // if current state and wanted state differs
-                    // comparison is not perfect, see: https://stackoverflow.com/questions/1068834/object-comparison-in-javascript#1144249
+                        const wantedKeyState = this.wantedState[keyName];
+                        const currentKeyState = this.currentState[keyName];
+                        const key = this.keysInLayout[keyName];
 
-                    // write the wanted state to the keyboard
-                    if (currentKeyState === undefined || JSON.stringify(currentKeyState.red) !== JSON.stringify(wantedKeyState.red)) {
-                        this.internalSendKeyData(key, "red", wantedKeyState.red);
-                        changed = true;
-                    }
-                    if (currentKeyState === undefined || JSON.stringify(currentKeyState.green) !== JSON.stringify(wantedKeyState.green)) {
-                        this.internalSendKeyData(key, "green", wantedKeyState.green);
-                        changed = true;
-                    }
-                    if (currentKeyState === undefined || JSON.stringify(currentKeyState.blue) !== JSON.stringify(wantedKeyState.blue)) {
-                        this.internalSendKeyData(key, "blue", wantedKeyState.blue);
-                        changed = true;
-                    }
+                        // if current state and wanted state differs
+                        // comparison is not perfect, see: https://stackoverflow.com/questions/1068834/object-comparison-in-javascript#1144249
 
-                    // and update the current state
-                    this.currentState[keyName] = wantedKeyState;
+                        // write the wanted state to the keyboard
+                        if (currentKeyState === undefined || JSON.stringify(currentKeyState.red) !== JSON.stringify(wantedKeyState.red)) {
+                            this.internalSendKeyData(key, "red", wantedKeyState.red);
+                            changed = true;
+                        }
+                        if (currentKeyState === undefined || JSON.stringify(currentKeyState.green) !== JSON.stringify(wantedKeyState.green)) {
+                            this.internalSendKeyData(key, "green", wantedKeyState.green);
+                            changed = true;
+                        }
+                        if (currentKeyState === undefined || JSON.stringify(currentKeyState.blue) !== JSON.stringify(wantedKeyState.blue)) {
+                            this.internalSendKeyData(key, "blue", wantedKeyState.blue);
+                            changed = true;
+                        }
+
+                        // and update the current state
+                        this.currentState[keyName] = wantedKeyState;
+                    }
                 }
 
                 // only apply if we've sent some data
@@ -263,7 +264,7 @@ export class KeyboardModule {
 
     }
 
-    private internalSendKeyData(key: KeyModel, channel: "red" | "green" | "blue", data: ChannelInfo) {
+    private internalSendKeyData(key: KeyModel, channel: "red" | "green" | "blue", data: IChannelInfo) {
         let aState = new ChannelState(key, channel)
             .setUpHoldLevel(data.upHoldLevel) //
             .setDownHoldLevel(data.downHoldLevel)
@@ -302,8 +303,10 @@ export class KeyboardModule {
 
     private restoreHardwareProfile() {
         for (const keyName in this.keysInLayout) {
-            const key = this.keysInLayout[keyName];
-            this.hardwareKeyboard.setKeyState(new KeyState(key).setToHardwareProfile());
+            if (this.keysInLayout.hasOwnProperty(keyName)) {
+                const key = this.keysInLayout[keyName];
+                this.hardwareKeyboard.setKeyState(new KeyState(key).setToHardwareProfile());
+            }
         }
         this.hardwareKeyboard.apply();
     }

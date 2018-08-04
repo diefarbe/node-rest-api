@@ -1,4 +1,4 @@
-export interface ChannelInfo {
+export interface IChannelInfo {
     upHoldLevel?: number;
     downHoldLevel?: number;
     upMaximumLevel?: number;
@@ -16,54 +16,54 @@ export interface ChannelInfo {
     transition?: boolean;
 }
 
-export interface StateInfo {
-    red: ChannelInfo;
-    green: ChannelInfo;
-    blue: ChannelInfo;
+export interface IStateInfo {
+    red: IChannelInfo;
+    green: IChannelInfo;
+    blue: IChannelInfo;
 }
 
-export interface StateChangeRequest {
+export interface IStateChangeRequest {
     key: string; // a.k.a "keyName"
-    data: StateInfo;
+    data: IStateInfo;
 }
 
 export type Signal = number | "nosignal";
 
-export interface PluginSignal {
+export interface IPluginSignal {
     name: string;
     description?: string;
     tags: string[];
     source: SignalSource;
 }
 
-export interface SignalProviderPlugin {
-    signals: PluginSignal[];
+export interface ISignalProviderPlugin {
+    signals: IPluginSignal[];
 }
 
-export type SignalSource = PollingSource | PollingCallbackSource | HookSource | EndpointSource;
+export type SignalSource = IPollingSource | IPollingCallbackSource | IHookSource | IEndpointSource;
 
-export interface PollingSource {
+export interface IPollingSource {
     type: "polling";
     interval: number; // how often to poll in seconds
     poll: () => Signal;
 }
 
-export interface PollingCallbackSource {
+export interface IPollingCallbackSource {
     type: "pollingCallback";
     interval: number; // how often to poll in seconds
     poll: (callback: (signal: Signal) => void) => void;
 }
 
-export interface HookSource {
+export interface IHookSource {
     type: "hook";
     attach: (callback: (signal: Signal) => void) => { unhook: () => void };
 }
 
-export interface EndpointSource {
+export interface IEndpointSource {
     type: "endpoint";
 }
 
-export interface ChannelAnimation {
+export interface IChannelAnimation {
     // these are all numeric values, optionally using a math expression
 
     upHoldLevel?: string;
@@ -77,29 +77,30 @@ export interface ChannelAnimation {
 
     upIncrement?: string;
     downDecrement?: string;
-    
+
     upIncrementDelay?: string;
     downDecrementDelay?: string;
 
     startDelay?: string;
     effectId?: string;
 
-    direction?: string;
     transition?: string;
+
+    direction?: "incDec" | "decInc" | "dec" | "inc";
+
 }
 
-export interface Animation {
-    red: ChannelAnimation;
-    green: ChannelAnimation;
-    blue: ChannelAnimation;
+export interface IAnimation {
+    red: IChannelAnimation;
+    green: IChannelAnimation;
+    blue: IChannelAnimation;
 }
 
 /**
- This structure maps a signal to a set of animations on the keyboard.
-
- Each range maps a upper and lower bound of the signal value to a certain animation.
+ * This structure maps a signal to a set of animations on the keyboard.
+ * Each range maps a upper and lower bound of the signal value to a certain animation.
  */
-export interface SignalMapping {
+export interface ISignalMapping {
     signal: string; // the signal you're mapping
     min: 0;
     max: 100;
@@ -108,29 +109,29 @@ export interface SignalMapping {
         startInclusive: boolean;
         end: number;
         endInclusive: boolean;
-        activatedAnimation: Animation | null; // the animation to use when the key is active, null to inherit the profile animation
-        notActivatedAnimation: Animation | null; // the animation to use when the key is not active, null to inherit the profile animation
+        activatedAnimation: IAnimation | null; // the animation to use when the key is active, null to inherit the profile animation
+        notActivatedAnimation: IAnimation | null; // the animation to use when the key is not active, null to inherit the profile animation
     }>;
     layouts: {
         [layout: string]: {
             keyGroups: string[][];
             mode: "all" | // all key groups get the same animation (|g|g|g| -> |y|y|y| -> |r|r|r|)
-                "multi" | // key groups will progressively be activated, all having the same animation (|g|.|.| -> |y|y|.| -> |r|r|r|)
-                "multiSingle" | // only the highest key group will be activated (|g|.|.| -> |.|y|.| -> |.|.|r|)
-                "multiSplit" // activated key groups will have the signal value <= their end range (|g|.|.| -> |g|y|.| -> |g|y|r|)
+            "multi" | // key groups will progressively be activated, all having the same animation (|g|.|.| -> |y|y|.| -> |r|r|r|)
+            "multiSingle" | // only the highest key group will be activated (|g|.|.| -> |.|y|.| -> |.|.|r|)
+            "multiSplit" // activated key groups will have the signal value <= their end range (|g|.|.| -> |g|y|.| -> |g|y|r|)
         }
     };
 }
 
-export interface Profile {
+export interface IProfile {
     name: string;
     description?: string;
     defaultAnimations: {
-        [layout: string]: StateChangeRequest[];
+        [layout: string]: IStateChangeRequest[];
     };
     uuid: string;
 }
 
-export interface SignalProfile {
+export interface ISignalProfile {
     enabledSignals: string[] | string;
 }

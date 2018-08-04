@@ -1,5 +1,5 @@
-import { StateChangeRequest } from "../types";
 import { KeyboardModule } from "../modules/keyboard";
+import { IStateChangeRequest } from "../types";
 
 /**
  * the state endpoint
@@ -16,7 +16,7 @@ export function init(keyboard: KeyboardModule) {
         async find() {
             return keyboard.getInfo();
         },
-        async update(item: any, data: StateChangeRequest[]) {
+        async update(item: any, data: IStateChangeRequest[]) {
             keyboard.onStateChangeRequested(data, false);
             return {
                 ok: true,

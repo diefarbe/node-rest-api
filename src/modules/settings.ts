@@ -1,11 +1,11 @@
 import * as fs from "fs";
-import { Logger } from "../utils/Logger";
 import { KeyboardEvents } from "../utils/KeyboardEvents";
+import { Logger } from "../utils/Logger";
 
 export const DefaultSettings = {
+    layout: "en-US",
     profile: "default",
     signals: ["cpu_utilization_max"],
-    layout: "en-US",
 };
 
 export type DefaultSettings = typeof DefaultSettings;
@@ -15,14 +15,14 @@ export class SettingsModule {
 
     private readonly settingsJSON: string;
 
+    private settings: DefaultSettings = DefaultSettings;
+
     constructor(private configPath: string, private events: KeyboardEvents) {
         this.logger.info("Config directory: " + configPath);
         this.settingsJSON = this.configPath + "/settings.json";
     }
 
-    private settings: DefaultSettings = DefaultSettings;
-
-    async init() {
+    public async init() {
         this.logger.info("Loading settings...");
         const shouldSetup = await this.shouldDoInitialSetup();
         if (shouldSetup) {
@@ -67,13 +67,13 @@ export class SettingsModule {
     private readSettings() {
         return new Promise<void>((resolve, reject) => {
             fs.readFile(this.settingsJSON, (err, data) => {
-                if (data === undefined) throw new Error(this.settingsJSON + " is corrupted");
+                if (data === undefined) { throw new Error(this.settingsJSON + " is corrupted"); }
                 const savedSettings = JSON.parse(data.toString("utf8"));
 
                 this.settings = {
                     ...DefaultSettings,
                     ...savedSettings,
-                }
+                };
                 this.writeJsonToFile(this.settings);
                 this.events.emit("onSettingsChanged", this.settings);
                 resolve();

@@ -1,6 +1,5 @@
 import { SettingsModule } from "../modules/settings";
 
-
 /**
  * The /settings endpoint
  * 
@@ -15,10 +14,10 @@ export function init(settings: SettingsModule) {
     return {
         async find() {
             return {
-                settings: settings.getSettings(),
                 serverInfo: {
                     uptime: process.uptime(),
-                }
+                },
+                settings: settings.getSettings(),
             };
         },
         async update(id: string, data: any) {

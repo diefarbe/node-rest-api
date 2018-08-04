@@ -1,6 +1,5 @@
-import { SignalsModule } from "../modules/signals";
 import { IndicatorModule } from "../modules/indicators";
-
+import { SignalsModule } from "../modules/signals";
 
 /**
  * 

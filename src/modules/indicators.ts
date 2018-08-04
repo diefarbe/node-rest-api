@@ -1,9 +1,9 @@
 
 import {
-    SignalMapping,
+    ISignalMapping,
+    IStateChangeRequest,
+    IStateInfo,
     Signal,
-    StateChangeRequest,
-    StateInfo,
 } from "../types";
 import { Animations } from "../utils/Animations";
 import { assertNever } from "../utils/Asserts";
@@ -15,76 +15,11 @@ export class IndicatorModule {
     private readonly logger = new Logger("KeyboardModule");
 
     private layout: string = "unknown";
-    private changes: { [key: string]: StateInfo } = {};
-
-
-    public constructor(
-        private keyboardEvents: KeyboardEvents) {
-    }
-
-    init() {
-        this.keyboardEvents.addListener("onSignalValueUpdated", this.onSignalValueUpdated);
-        this.keyboardEvents.addListener("onSettingsChanged", this.onSettingsChanged);
-        this.keyboardEvents.addListener("onSignalTickRequest", this.onSignalTickRequest);
-    }
-
-    deinit() {
-        this.keyboardEvents.removeListener("onSignalValueUpdated", this.onSignalValueUpdated);
-        this.keyboardEvents.removeListener("onSettingsChanged", this.onSettingsChanged);
-        this.keyboardEvents.removeListener("onSignalTickRequest", this.onSignalTickRequest);
-    }
-
-    onSignalTickRequest = () => {
-        const stateChagnes: StateChangeRequest[] = [];
-        for (const key of Object.keys(this.changes)) {
-            stateChagnes.push({
-                key,
-                data: this.changes[key]
-            })
-        }
-        this.keyboardEvents.emit("onStateChangeRequested", stateChagnes, false);
-
-    }
-
-    onSettingsChanged = (settings: any) => {
-        this.layout = settings.layout;
-    }
+    private changes: { [key: string]: IStateInfo } = {};
 
     // TODO ensure no gaps in ranges and they fall between min and max
     // TODO remove this hardcoded stuff
-    private readonly signalMappings: SignalMapping[] = [{
-        signal: "cpu_utilization_max",
-        min: 0,
-        max: 100,
-        ranges: [{
-            start: 0,
-            startInclusive: true,
-            end: 80,
-            endInclusive: true,
-            activatedAnimation: Animations.solidColor("00FF00"),
-            notActivatedAnimation: null,
-        }, {
-            start: 80,
-            startInclusive: false,
-            end: 90,
-            endInclusive: true,
-            activatedAnimation: Animations.solidColor("FFFF00"),
-            notActivatedAnimation: null,
-        }, {
-            start: 90,
-            startInclusive: false,
-            end: 99,
-            endInclusive: true,
-            activatedAnimation: Animations.solidColor("FF0000"),
-            notActivatedAnimation: null,
-        }, {
-            start: 99,
-            startInclusive: false,
-            end: 100,
-            endInclusive: true,
-            activatedAnimation: Animations.solidColorFlashing("FF0000"),
-            notActivatedAnimation: null,
-        }],
+    private readonly signalMappings: ISignalMapping[] = [{
         layouts: {
             "en-US": {
                 keyGroups: [
@@ -101,33 +36,40 @@ export class IndicatorModule {
                 ],
                 mode: "multi"
             }
-        }
-    }, {
-        signal: "memory_utilization",
-        min: 0,
+        },
         max: 100,
+        min: 0,
         ranges: [{
-            start: 0,
-            startInclusive: true,
+            activatedAnimation: Animations.solidColor("00FF00"),
             end: 80,
             endInclusive: true,
-            activatedAnimation: Animations.solidColor("00FF00"),
             notActivatedAnimation: null,
+            start: 0,
+            startInclusive: true,
         }, {
-            start: 80,
-            startInclusive: false,
+            activatedAnimation: Animations.solidColor("FFFF00"),
             end: 90,
             endInclusive: true,
-            activatedAnimation: Animations.solidColor("FFFF00"),
             notActivatedAnimation: null,
+            start: 80,
+            startInclusive: false,
         }, {
+            activatedAnimation: Animations.solidColor("FF0000"),
+            end: 99,
+            endInclusive: true,
+            notActivatedAnimation: null,
             start: 90,
             startInclusive: false,
+        }, {
+            activatedAnimation: Animations.solidColorFlashing("FF0000"),
             end: 100,
             endInclusive: true,
-            activatedAnimation: Animations.solidColor("FF0000"),
             notActivatedAnimation: null,
+            start: 99,
+            startInclusive: false,
         }],
+        signal: "cpu_utilization_max",
+    }, {
         layouts: {
             "en-US": {
                 keyGroups: [
@@ -144,18 +86,75 @@ export class IndicatorModule {
                 ],
                 mode: "multi"
             }
-        }
+        },
+        max: 100,
+        min: 0,
+        ranges: [{
+            activatedAnimation: Animations.solidColor("00FF00"),
+            end: 80,
+            endInclusive: true,
+            notActivatedAnimation: null,
+            start: 0,
+            startInclusive: true,
+        }, {
+            activatedAnimation: Animations.solidColor("FFFF00"),
+            end: 90,
+            endInclusive: true,
+            notActivatedAnimation: null,
+            start: 80,
+            startInclusive: false,
+        }, {
+            activatedAnimation: Animations.solidColor("FF0000"),
+            end: 100,
+            endInclusive: true,
+            notActivatedAnimation: null,
+            start: 90,
+            startInclusive: false,
+        }],
+        signal: "memory_utilization",
     }];
 
-    getInfo() {
+    public constructor(
+        private keyboardEvents: KeyboardEvents) {
+    }
+
+    public init() {
+        this.keyboardEvents.addListener("onSignalValueUpdated", this.onSignalValueUpdated);
+        this.keyboardEvents.addListener("onSettingsChanged", this.onSettingsChanged);
+        this.keyboardEvents.addListener("onSignalTickRequest", this.onSignalTickRequest);
+    }
+
+    public deinit() {
+        this.keyboardEvents.removeListener("onSignalValueUpdated", this.onSignalValueUpdated);
+        this.keyboardEvents.removeListener("onSettingsChanged", this.onSettingsChanged);
+        this.keyboardEvents.removeListener("onSignalTickRequest", this.onSignalTickRequest);
+    }
+
+    public onSignalTickRequest = () => {
+        const stateChagnes: IStateChangeRequest[] = [];
+        for (const key of Object.keys(this.changes)) {
+            stateChagnes.push({
+                data: this.changes[key],
+                key,
+            });
+        }
+        this.keyboardEvents.emit("onStateChangeRequested", stateChagnes, false);
+
+    }
+
+    public onSettingsChanged = (settings: any) => {
+        this.layout = settings.layout;
+    }
+
+    public getInfo() {
         return this.signalMappings;
     }
 
     /**
-    * Called when the signal has a different value than before.
-    * @param {string} signal
-    * @param {Signal} value
-    */
+     * Called when the signal has a different value than before.
+     * @param {string} signal
+     * @param {Signal} value
+     */
     private onSignalValueUpdated = (signal: string, value: Signal) => {
         this.logger.info("Signal Value updated: " + signal + ":" + value);
         for (const sig of this.signalMappings) {
@@ -171,9 +170,9 @@ export class IndicatorModule {
                 const val = Math.max(Math.min(value, sig.max), sig.min);
 
                 // switch on the design
-                if (lay.mode == "all") {
+                if (lay.mode === "all") {
                     // determine the animation for all keys
-                    let data: StateInfo | null = null;
+                    let data: IStateInfo | null = null;
                     for (const range of sig.ranges) {
                         if (((range.start <= val && range.startInclusive) || (range.start < val && !range.startInclusive)) &&
                             ((val <= range.end && range.endInclusive) || (val < range.end && !range.endInclusive))) {
@@ -182,7 +181,7 @@ export class IndicatorModule {
                             }
                         }
                     }
-                    if (data == null) throw new Error("ranges invalid");
+                    if (data == null) { throw new Error("ranges invalid"); }
 
                     // send them to the keys
                     for (const group of lay.keyGroups) {
@@ -190,9 +189,9 @@ export class IndicatorModule {
                             this.changes[key] = data;
                         }
                     }
-                } else if (lay.mode == "multi") {
+                } else if (lay.mode === "multi") {
                     // determine the animation for all activated keys
-                    let data: StateInfo | null = null;
+                    let data: IStateInfo | null = null;
                     for (const range of sig.ranges) {
                         if (((range.start <= val && range.startInclusive) || (range.start < val && !range.startInclusive)) &&
                             ((val <= range.end && range.endInclusive) || (val < range.end && !range.endInclusive))) {
@@ -201,9 +200,9 @@ export class IndicatorModule {
                             }
                         }
                     }
-                    if (data == null) throw new Error("ranges invalid");
+                    if (data == null) { throw new Error("ranges invalid"); }
 
-                    const changes: StateChangeRequest[] = [];
+                    const changes: IStateChangeRequest[] = [];
 
                     // get colors for activated keys
                     const numKeysActivated = Math.floor(lay.keyGroups.length * val / sig.max);
@@ -213,9 +212,9 @@ export class IndicatorModule {
                         }
                     }
 
-                } else if (lay.mode == "multiSingle") {
+                } else if (lay.mode === "multiSingle") {
                     throw new Error("not implemented");
-                } else if (lay.mode == "multiSplit") {
+                } else if (lay.mode === "multiSplit") {
                     throw new Error("not implemented");
                 } else {
                     assertNever(lay.mode);

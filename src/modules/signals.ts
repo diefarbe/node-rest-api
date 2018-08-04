@@ -1,15 +1,15 @@
 import {
-    PluginSignal,
+    IPluginSignal,
+    ISignalProviderPlugin,
     Signal,
-    SignalProviderPlugin,
 } from "../types";
 import { assertNever } from "../utils/Asserts";
 import { KeyboardEvents } from "../utils/KeyboardEvents";
 import { Logger } from "../utils/Logger";
 import { DefaultSettings } from "./settings";
 
-interface EnabledSignal {
-    pluginSignal: PluginSignal;
+interface IEnabledSignal {
+    pluginSignal: IPluginSignal;
     timer: NodeJS.Timer | null;
     hook: { unhook: () => void } | null;
 }
@@ -17,8 +17,8 @@ interface EnabledSignal {
 export class SignalsModule {
     private readonly logger = new Logger("SignalsModule");
 
-    private signalPlugins: SignalProviderPlugin[] = [];
-    private enabledSignalPlugins: EnabledSignal[] = [];
+    private signalPlugins: ISignalProviderPlugin[] = [];
+    private enabledSignalPlugins: IEnabledSignal[] = [];
 
     private signals = new Map<string, Signal>();
 
@@ -26,19 +26,21 @@ export class SignalsModule {
         private keyboardEvents: KeyboardEvents) {
     }
 
-    init() {
+    public init() {
         this.logger.info("Initializing signals.");
         const requirePath = require("require-path");
 
         requirePath({
+            include: ["*.js", "*/index.js"],
             path: "plugins",
-            include: ["*.js", "*/index.js"]
         })
-            .then((modules: { [key: string]: SignalProviderPlugin }) => {
+            .then((modules: { [key: string]: ISignalProviderPlugin }) => {
                 for (const key in modules) {
-                    this.logger.info("Found signal provider plugin:", key);
-                    const plugin = modules[key];
-                    this.loadPlugin(plugin);
+                    if (modules.hasOwnProperty(key)) {
+                        this.logger.info("Found signal provider plugin:", key);
+                        const plugin = modules[key];
+                        this.loadPlugin(plugin);
+                    }
                 }
 
             })
@@ -49,7 +51,7 @@ export class SignalsModule {
         this.keyboardEvents.addListener("onSettingsChanged", this.onSettingsChanged);
     }
 
-    deinit() {
+    public deinit() {
         // disable everyone
         this.setEnabledSignals([]);
         this.keyboardEvents.removeListener("onSettingsChanged", this.onSettingsChanged);
@@ -74,7 +76,7 @@ export class SignalsModule {
         }
     }
 
-    private loadPlugin(plugin: SignalProviderPlugin) {
+    private loadPlugin(plugin: ISignalProviderPlugin) {
         // TODO ensure that there are no conflicting signals or duplicate tags, possibly a conflicting signal results in the most recent plugin load taking precedence
         this.signalPlugins.push(plugin);
     }
@@ -83,7 +85,7 @@ export class SignalsModule {
         this.setEnabledSignals(settings.signals);
     }
 
-    private disableSignal(signal: PluginSignal) {
+    private disableSignal(signal: IPluginSignal) {
         for (let i = 0; i < this.enabledSignalPlugins.length; i++) {
             const enabled = this.enabledSignalPlugins[i];
             if (enabled.pluginSignal === signal) {
@@ -99,11 +101,11 @@ export class SignalsModule {
         }
     }
 
-    private enableSignal(signal: PluginSignal) {
-        const enabledSignal: EnabledSignal = {
+    private enableSignal(signal: IPluginSignal) {
+        const enabledSignal: IEnabledSignal = {
+            hook: null,
             pluginSignal: signal,
             timer: null,
-            hook: null,
         };
 
         const source = signal.source; // type checking wants this for some reason
