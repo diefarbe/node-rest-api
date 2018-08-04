@@ -22,9 +22,9 @@ export class SettingsModule {
 
     private settings: DefaultSettings = DefaultSettings;
 
-    public init() {
+    async init() {
         this.logger.info("Loading settings...");
-        const shouldSetup = this.shouldDoInitialSetup();
+        const shouldSetup = await this.shouldDoInitialSetup();
         if (shouldSetup) {
             this.initialSetup();
         }

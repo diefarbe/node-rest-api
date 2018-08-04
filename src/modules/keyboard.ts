@@ -50,7 +50,7 @@ export class KeyboardModule {
      * 
      * We start monitoring the USB ports for the keyboard.
      */
-    async init(): Promise<void> {
+    init() {
         this.keyboardEvents.addListener("onSettingsChanged", this.onSettingsChanged);
         this.keyboardEvents.addListener("onStateChangeRequested", this.onStateChangeRequested);
 
@@ -79,7 +79,7 @@ export class KeyboardModule {
         this.syncTimer = setInterval(() => this.sync(), 1000);
     }
 
-    async deinit(): Promise<void> {
+    deinit() {
         this.keyboardEvents.removeListener("onSettingsChanged", this.onSettingsChanged);
         this.keyboardEvents.removeListener("onStateChangeRequested", this.onStateChangeRequested);
 

@@ -26,7 +26,7 @@ export class SignalsModule {
         private keyboardEvents: KeyboardEvents) {
     }
 
-    public init() {
+    init() {
         this.logger.info("Initializing signals.");
         const requirePath = require("require-path");
 
@@ -49,8 +49,7 @@ export class SignalsModule {
         this.keyboardEvents.addListener("onSettingsChanged", this.onSettingsChanged);
     }
 
-
-    public deinit() {
+    deinit() {
         // disable everyone
         this.setEnabledSignals([]);
         this.keyboardEvents.removeListener("onSettingsChanged", this.onSettingsChanged);
