@@ -165,9 +165,8 @@ export class IndicatorModule {
      */
     private onSignalValueUpdated = (signal: string, value: Signal) => {
         this.logger.info("Signal Value updated: " + signal + ":" + value);
-        if (typeof this.changes[signal] === "undefined") {
-            this.changes[signal] = {};
-        }
+        // reset the changes for this signal since we're about to reset them
+        this.changes[signal] = {};
         for (const sig of this.signalMappings) {
             if (sig.signal === signal) {
                 const lay = sig.layouts[this.layout];
