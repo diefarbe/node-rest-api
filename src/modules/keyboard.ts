@@ -305,7 +305,7 @@ export class KeyboardModule {
         for (const keyName in this.keysInLayout) {
             if (this.keysInLayout.hasOwnProperty(keyName)) {
                 const key = this.keysInLayout[keyName];
-                this.hardwareKeyboard.setKeyState(new KeyState(key).setToHardwareProfile());
+                this.hardwareKeyboard.setKeyState(new KeyState(key).setApplyDelayed().setToHardwareProfile());
             }
         }
         this.hardwareKeyboard.apply();
