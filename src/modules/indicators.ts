@@ -11,10 +11,12 @@ import { KeyboardEvents } from "../utils/KeyboardEvents";
 import { Logger } from "../utils/Logger";
 
 export class IndicatorModule {
-    
+
     private readonly logger = new Logger("KeyboardModule");
 
     private layout: string = "unknown";
+    private changes: { [key: string]: StateInfo } = {};
+
 
     public constructor(
         private keyboardEvents: KeyboardEvents) {
@@ -23,11 +25,25 @@ export class IndicatorModule {
     init() {
         this.keyboardEvents.addListener("onSignalValueUpdated", this.onSignalValueUpdated);
         this.keyboardEvents.addListener("onSettingsChanged", this.onSettingsChanged);
+        this.keyboardEvents.addListener("onSignalTickRequest", this.onSignalTickRequest);
     }
 
     deinit() {
         this.keyboardEvents.removeListener("onSignalValueUpdated", this.onSignalValueUpdated);
         this.keyboardEvents.removeListener("onSettingsChanged", this.onSettingsChanged);
+        this.keyboardEvents.removeListener("onSignalTickRequest", this.onSignalTickRequest);
+    }
+
+    onSignalTickRequest = () => {
+        const stateChagnes: StateChangeRequest[] = [];
+        for (const key of Object.keys(this.changes)) {
+            stateChagnes.push({
+                key,
+                data: this.changes[key]
+            })
+        }
+        this.keyboardEvents.emit("onStateChangeRequested", stateChagnes, false);
+
     }
 
     onSettingsChanged = (settings: any) => {
@@ -169,16 +185,11 @@ export class IndicatorModule {
                     if (data == null) throw new Error("ranges invalid");
 
                     // send them to the keys
-                    const changes: StateChangeRequest[] = [];
                     for (const group of lay.keyGroups) {
                         for (const key of group) {
-                            changes.push({
-                                key,
-                                data
-                            });
+                            this.changes[key] = data;
                         }
                     }
-                    this.keyboardEvents.on("onStateChangeRequested", changes);
                 } else if (lay.mode == "multi") {
                     // determine the animation for all activated keys
                     let data: StateInfo | null = null;
@@ -198,14 +209,10 @@ export class IndicatorModule {
                     const numKeysActivated = Math.floor(lay.keyGroups.length * val / sig.max);
                     for (let i = 0; i < numKeysActivated; i++) {
                         for (const key of lay.keyGroups[i]) {
-                            changes.push({
-                                key,
-                                data
-                            });
+                            this.changes[key] = data;
                         }
                     }
 
-                    this.keyboardEvents.emit("onStateChangeRequested", changes, false);
                 } else if (lay.mode == "multiSingle") {
                     throw new Error("not implemented");
                 } else if (lay.mode == "multiSplit") {
