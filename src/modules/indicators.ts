@@ -14,9 +14,6 @@ export class IndicatorModule {
 
     private readonly logger = new Logger("KeyboardModule");
 
-    private layout: string = "unknown";
-    private changes: { [key: string]: { [key: string]: IStateInfo } } = {};
-
     // TODO ensure no gaps in ranges and they fall between min and max
     // TODO remove this hardcoded stuff
     private readonly signalMappings: ISignalMapping[] = [{
@@ -114,25 +111,35 @@ export class IndicatorModule {
         signal: "memory_utilization",
     }];
 
+    private layout: string = "unknown";
+    private changes: { [key: string]: { [key: string]: IStateInfo } } = {};
+
     public constructor(
         private keyboardEvents: KeyboardEvents) {
     }
 
     public init() {
-        this.keyboardEvents.addListener("onSignalValueUpdated", this.onSignalValueUpdated);
-        this.keyboardEvents.addListener("onSettingsChanged", this.onSettingsChanged);
-        this.keyboardEvents.addListener("onSignalTickRequest", this.onSignalTickRequest);
-        this.keyboardEvents.addListener("onSignalDisabled", this.onSignalDisabled);
+        this.keyboardEvents.addSignalValueUpdateListener(this.onSignalValueUpdated);
+        this.keyboardEvents.addSignalDisableListener(this.onSignalDisabled);
+
+        this.keyboardEvents.addSettingsListener(this.onSettingsChanged);
+        this.keyboardEvents.addRedrawListener(this.onSignalTickRequest, 1);
     }
 
     public deinit() {
-        this.keyboardEvents.removeListener("onSignalValueUpdated", this.onSignalValueUpdated);
-        this.keyboardEvents.removeListener("onSettingsChanged", this.onSettingsChanged);
-        this.keyboardEvents.removeListener("onSignalTickRequest", this.onSignalTickRequest);
-        this.keyboardEvents.removeListener("onSignalDisabled", this.onSignalDisabled);
+        this.keyboardEvents.removeSignalValueUpdateListener(this.onSignalValueUpdated);
+        this.keyboardEvents.removeSignalDisableListener(this.onSignalDisabled);
+
+        this.keyboardEvents.removeSettingsListener(this.onSettingsChanged);
+        this.keyboardEvents.removeRedrawListener(1);
+
     }
 
-    public onSignalTickRequest = () => {
+    public getInfo() {
+        return this.signalMappings;
+    }
+
+    private onSignalTickRequest = () => {
         const stateChanges: IStateChangeRequest[] = [];
         for (const signalName of Object.keys(this.changes)) {
             for (const key of Object.keys(this.changes[signalName])) {
@@ -142,20 +149,16 @@ export class IndicatorModule {
                 });
             }
         }
-        this.keyboardEvents.emit("onStateChangeRequested", stateChanges, false);
+        this.keyboardEvents.requestStateChange(stateChanges);
     }
 
-    public onSignalDisabled = (signal: string) => {
+    private onSignalDisabled = (signal: string) => {
         this.logger.info("Disabled:" + signal);
         delete this.changes[signal];
     }
 
-    public onSettingsChanged = (settings: any) => {
+    private onSettingsChanged = (settings: any) => {
         this.layout = settings.layout;
-    }
-
-    public getInfo() {
-        return this.signalMappings;
     }
 
     /**
@@ -173,7 +176,7 @@ export class IndicatorModule {
 
                 // if no signal, inherit the profile animation
                 if (value === "nosignal") {
-                    return;
+                    continue;
                 }
 
                 // ensure the signal value is within range

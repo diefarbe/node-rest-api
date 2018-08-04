@@ -49,8 +49,8 @@ export class KeyboardModule {
      * We start monitoring the USB ports for the keyboard.
      */
     public init() {
-        this.keyboardEvents.addListener("onSettingsChanged", this.onSettingsChanged);
-        this.keyboardEvents.addListener("onStateChangeRequested", this.onStateChangeRequested);
+        this.keyboardEvents.addSettingsListener(this.onSettingsChanged);
+        this.keyboardEvents.addStateChangeListener(this.onStateChangeRequested);
 
         usbDetect.startMonitoring();
 
@@ -78,8 +78,8 @@ export class KeyboardModule {
     }
 
     public deinit() {
-        this.keyboardEvents.removeListener("onSettingsChanged", this.onSettingsChanged);
-        this.keyboardEvents.removeListener("onStateChangeRequested", this.onStateChangeRequested);
+        this.keyboardEvents.removeSettingsListener(this.onSettingsChanged);
+        this.keyboardEvents.removeStateChangeListener(this.onStateChangeRequested);
 
         // stop the redrawTimer
         if (this.redrawTimer != null) {
@@ -99,8 +99,7 @@ export class KeyboardModule {
 
     public redrawKeyboard() {
         this.logger.info("Tick");
-        this.keyboardEvents.emit("onProfileTickRequest");
-        this.keyboardEvents.emit("onSignalTickRequest");
+        this.keyboardEvents.requestDraw();
 
         this.sync();
     }
@@ -195,8 +194,6 @@ export class KeyboardModule {
                 this.keyboardConnected = true;
 
                 this.logger.info("Keyboard initialization complete.");
-                this.keyboardEvents.emit("onKeyboardConnected");
-
             } catch (e) {
                 this.disconnectKeyboard();
                 this.logger.warn("Keyboard initialization failed.", e);

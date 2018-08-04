@@ -75,7 +75,7 @@ export class SettingsModule {
                     ...savedSettings,
                 };
                 this.writeJsonToFile(this.settings);
-                this.events.emit("onSettingsChanged", this.settings);
+                this.events.settingsUpdated(this.settings);
                 resolve();
             });
         });
@@ -86,7 +86,7 @@ export class SettingsModule {
             if (err) {
                 throw err;
             }
-            this.events.emit("onSettingsChanged", this.settings);
+            this.events.settingsUpdated(this.settings);
         });
     }
 }

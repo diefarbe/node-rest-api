@@ -13,12 +13,7 @@ export function init(settings: SettingsModule) {
 
     return {
         async find() {
-            return {
-                serverInfo: {
-                    uptime: process.uptime(),
-                },
-                settings: settings.getSettings(),
-            };
+            return settings.getSettings();
         },
         async update(id: string, data: any) {
             await settings.pushSetting(data);

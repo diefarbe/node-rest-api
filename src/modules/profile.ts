@@ -27,15 +27,19 @@ export class ProfileModule {
     }
 
     public init(): void {
-        this.keyboardEvents.addListener("onSettingsChanged", this.onSettingsChanged);
-        this.keyboardEvents.addListener("onInitialSetupComplete", this.onInitialSetupComplete);
-        this.keyboardEvents.addListener("onProfileTickRequest", this.onProfileTickRequest);
+        this.keyboardEvents.addSettingsListener(this.onSettingsChanged);
+        this.keyboardEvents.addRedrawListener(this.onRedrawRequested, 0);
+
+        try {
+            fs.mkdirSync(this.profileDirectory);
+        } catch {
+            // stab
+        }
     }
 
     public deinit(): void {
-        this.keyboardEvents.removeListener("onSettingsChanged", this.onSettingsChanged);
-        this.keyboardEvents.removeListener("onInitialSetupComplete", this.onInitialSetupComplete);
-        this.keyboardEvents.removeListener("onProfileTickRequest", this.onProfileTickRequest);
+        this.keyboardEvents.removeSettingsListener(this.onSettingsChanged);
+        this.keyboardEvents.removeRedrawListener(0);
     }
 
     public getInfo(profileUUID?: string) {
@@ -81,14 +85,10 @@ export class ProfileModule {
         this.profiles.default = require("../../assets/profiles/dim.json");
     }
 
-    public onProfileTickRequest = () => {
+    public onRedrawRequested = () => {
         const ourProfile = this.profiles[this.currentProfileUUID];
         const changes = ourProfile.defaultAnimations[this.currentLayout];
-        this.keyboardEvents.emit("onStateChangeRequested", changes, false);
-    }
-
-    private onInitialSetupComplete = () => {
-        fs.mkdirSync(this.profileDirectory);
+        this.keyboardEvents.requestStateChange(changes);
     }
 
     private loadProfilesFromPath(configDir: string) {

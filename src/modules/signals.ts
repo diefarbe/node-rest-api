@@ -49,13 +49,13 @@ export class SignalsModule {
                 throw errors;
             });
 
-        this.keyboardEvents.addListener("onSettingsChanged", this.onSettingsChanged);
+        this.keyboardEvents.addSettingsListener(this.onSettingsChanged);
     }
 
     public deinit() {
         // disable everyone
         this.setEnabledSignals([]);
-        this.keyboardEvents.removeListener("onSettingsChanged", this.onSettingsChanged);
+        this.keyboardEvents.removeSettingsListener(this.onSettingsChanged);
 
     }
 
@@ -105,7 +105,7 @@ export class SignalsModule {
                     enabled.hook.unhook();
                 }
                 this.enabledSignalPlugins.splice(i, 1);
-                this.keyboardEvents.emit("onSignalDisabled", signal.name);
+                this.keyboardEvents.disableSignal(signal.name);
                 return;
             }
         }
@@ -157,7 +157,7 @@ export class SignalsModule {
         const currentValue = this.signals.get(signal);
         if (currentValue !== value) {
             this.signals.set(signal, value);
-            this.keyboardEvents.emit("onSignalValueUpdated", signal, value);
+            this.keyboardEvents.updateSignalValue(signal, value);
         }
     }
 }
