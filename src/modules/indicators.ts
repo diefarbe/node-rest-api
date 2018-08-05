@@ -16,7 +16,7 @@ export class IndicatorModule {
 
     // TODO ensure no gaps in ranges and they fall between min and max
     // TODO remove this hardcoded stuff
-    private readonly signalMappings: ISignalMapping[] = [{
+    private readonly indicators: ISignalMapping[] = [{
         layouts: {
             "en-US": {
                 keyGroups: [
@@ -66,6 +66,7 @@ export class IndicatorModule {
             startInclusive: false,
         }],
         signal: "cpu_utilization_max",
+        uuid: "0ae6d89e-89f1-4906-aa16-a76c17270859",
     }, {
         layouts: {
             "en-US": {
@@ -109,6 +110,7 @@ export class IndicatorModule {
             startInclusive: false,
         }],
         signal: "memory_utilization",
+        uuid: "5dca1f2d-7386-48a8-b2b3-b74931dd36f3",
     }];
 
     private layout: string = "unknown";
@@ -135,8 +137,15 @@ export class IndicatorModule {
 
     }
 
-    public getInfo() {
-        return this.signalMappings;
+    public getInfo(id?: string) {
+        if (typeof id !== "undefined") {
+            for (const indicator of this.indicators) {
+                if (indicator.uuid === id) {
+                    return indicator;
+                }
+            }
+        }
+        return this.indicators;
     }
 
     private onSignalTickRequest = () => {
@@ -170,7 +179,7 @@ export class IndicatorModule {
         this.logger.info("Signal Value updated: " + signal + ":" + value);
         // reset the changes for this signal since we're about to reset them
         this.changes[signal] = {};
-        for (const sig of this.signalMappings) {
+        for (const sig of this.indicators) {
             if (sig.signal === signal) {
                 const lay = sig.layouts[this.layout];
 

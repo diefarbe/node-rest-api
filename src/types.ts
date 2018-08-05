@@ -101,6 +101,7 @@ export interface IAnimation {
  * Each range maps a upper and lower bound of the signal value to a certain animation.
  */
 export interface ISignalMapping {
+    uuid: string;
     signal: string; // the signal you're mapping
     min: 0;
     max: 100;

@@ -17,6 +17,9 @@ export function init(indicator: IndicatorModule, signals: SignalsModule) {
         async find() {
             return indicator.getInfo();
         },
+        async get(id: string) {
+            return indicator.getInfo(id);
+        },
         async update(id: string, data: any) {
             return {};
         }
