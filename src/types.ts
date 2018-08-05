@@ -100,7 +100,7 @@ export interface IAnimation {
  * This structure maps a signal to a set of animations on the keyboard.
  * Each range maps a upper and lower bound of the signal value to a certain animation.
  */
-export interface ISignalMapping {
+export interface IIndicator {
     uuid: string;
     signal: string; // the signal you're mapping
     min: 0;

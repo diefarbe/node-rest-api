@@ -125,7 +125,7 @@ export class IndicatorModule {
         this.keyboardEvents.addSignalDisableListener(this.onSignalDisabled);
 
         this.keyboardEvents.addSettingsListener(this.onSettingsChanged);
-        this.keyboardEvents.addRedrawListener(this.onSignalTickRequest, 1);
+        this.keyboardEvents.addRedrawListener(this.onRedraw, 1);
     }
 
     public deinit() {
@@ -148,12 +148,23 @@ export class IndicatorModule {
         return this.indicators;
     }
 
-    private onSignalTickRequest = () => {
+    public deleteIndicator(id: string) {
+        const tempIndicators = [];
+        for (const indicator of this.indicators) {
+            if (indicator.uuid !== id) {
+                tempIndicators.push(indicator);
+            } else {
+                delete this.changes[indicator.uuid];
+            }
+        }
+    }
+
+    private onRedraw = () => {
         const stateChanges: IStateChangeRequest[] = [];
-        for (const signalName of Object.keys(this.changes)) {
-            for (const key of Object.keys(this.changes[signalName])) {
+        for (const indicatorUUID of Object.keys(this.changes)) {
+            for (const key of Object.keys(this.changes[indicatorUUID])) {
                 stateChanges.push({
-                    data: this.changes[signalName][key],
+                    data: this.changes[indicatorUUID][key],
                     key,
                 });
             }
@@ -163,7 +174,11 @@ export class IndicatorModule {
 
     private onSignalDisabled = (signal: string) => {
         this.logger.info("Disabled:" + signal);
-        delete this.changes[signal];
+        for (const indicator of this.indicators) {
+            if (indicator.signal === signal) {
+                delete this.changes[indicator.uuid];
+            }
+        }
     }
 
     private onSettingsChanged = (settings: any) => {
@@ -178,9 +193,10 @@ export class IndicatorModule {
     private onSignalValueUpdated = (signal: string, value: Signal) => {
         this.logger.info("Signal Value updated: " + signal + ":" + value);
         // reset the changes for this signal since we're about to reset them
-        this.changes[signal] = {};
         for (const sig of this.indicators) {
             if (sig.signal === signal) {
+                this.changes[sig.uuid] = {};
+
                 const lay = sig.layouts[this.layout];
 
                 // if no signal, inherit the profile animation
@@ -208,7 +224,7 @@ export class IndicatorModule {
                     // send them to the keys
                     for (const group of lay.keyGroups) {
                         for (const key of group) {
-                            this.changes[signal][key] = data;
+                            this.changes[sig.uuid][key] = data;
                         }
                     }
                 } else if (lay.mode === "multi") {
@@ -228,7 +244,7 @@ export class IndicatorModule {
                     const numKeysActivated = Math.floor(lay.keyGroups.length * val / sig.max);
                     for (let i = 0; i < numKeysActivated; i++) {
                         for (const key of lay.keyGroups[i]) {
-                            this.changes[signal][key] = data;
+                            this.changes[sig.uuid][key] = data;
                         }
                     }
 

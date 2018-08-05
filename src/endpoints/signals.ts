@@ -20,6 +20,10 @@ export function init(indicator: IndicatorModule, signals: SignalsModule) {
         async get(id: string) {
             return indicator.getInfo(id);
         },
+        async remove(id: string) {
+            indicator.deleteIndicator(id);
+            return indicator.getInfo();
+        },
         async update(id: string, data: any) {
             return {};
         }
