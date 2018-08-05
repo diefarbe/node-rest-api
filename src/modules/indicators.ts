@@ -1,6 +1,6 @@
 
 import {
-    ISignalMapping,
+    IIndicator,
     IStateChangeRequest,
     IStateInfo,
     Signal,
@@ -16,7 +16,7 @@ export class IndicatorModule {
 
     // TODO ensure no gaps in ranges and they fall between min and max
     // TODO remove this hardcoded stuff
-    private readonly indicators: ISignalMapping[] = [{
+    private readonly indicators: IIndicator[] = [{
         layouts: {
             "en-US": {
                 keyGroups: [
