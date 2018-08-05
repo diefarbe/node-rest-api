@@ -127,6 +127,31 @@ export class SignalsModule {
                 mode: "multi"
             }
         }
+    }, {
+        signal: "ws_data",
+        min: 0,
+        max: 100,
+        ranges: [{
+            start: 0,
+            startInclusive: true,
+            end: 50,
+            endInclusive: true,
+            activatedAnimation: this.solidColor("FF0000"),
+            notActivatedAnimation: null,
+        }, {
+            start: 50,
+            startInclusive: false,
+            end: 100,
+            endInclusive: true,
+            activatedAnimation: this.solidColor("00FF00"),
+            notActivatedAnimation: null,
+        }],
+        layouts: {
+            "en-US": {
+                keyGroups: [["a"], ["s"]],
+                mode: "multi"
+            }
+        }
     }];
 
     public constructor(
@@ -273,7 +298,7 @@ export class SignalsModule {
      * @param {string} signal
      * @param {Signal} value
      */
-    private signalValueUpdate(signal: string, value: Signal) {
+    public signalValueUpdate(signal: string, value: Signal) {
         const currentValue = this.signals.get(signal);
         if (currentValue !== value) {
             this.signals.set(signal, value);

@@ -6,11 +6,13 @@ import { SettingsModule } from "./modules/settings";
 import { SignalsModule } from "./modules/signals";
 import { Logger } from "./log";
 import { homedir } from "os";
+import { Signal } from "./types";
 
 const feathers = require("@feathersjs/feathers");
 const express = require("@feathersjs/express");
 const program = require("commander");
 const pack = require("../package.json");
+const WebSocket = require("ws");
 
 let logger = new Logger("index.ts");
 
@@ -68,6 +70,19 @@ async function startProgram() {
 
     server.on("listening", () => logger.info("Feathers REST API started at http://localhost:3030"));
 
+    const uuid = "e80beebe-2434-442a-89fd-363f511fba76";
+    const wsServer = "localhost:8080";
+    const ws = new WebSocket("ws://" + wsServer + "/listen", "signal-protocol");
+    ws.on("open", () => {
+        ws.send(uuid);
+        logger.info("Connected to Internet relay. My UUID is: " + uuid);
+    });
+    ws.on("message", (data: string) => {
+        console.log("new data: " + data);
+        let params: { signal: string, value: Signal } = JSON.parse(data);
+        signals.signalValueUpdate(params.signal, params.value);
+    });
+
     let cleanedUp = false;
 
     function cleanupProgram() {
@@ -80,6 +95,7 @@ async function startProgram() {
         keyboard.close();
         cleanedUp = true;
         logger.info("Cleanup complete.");
+        ws.close();
     }
 
     /*

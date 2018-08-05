@@ -22,12 +22,14 @@
     "tslint": "^5.10.0",
     "usb-detection": "^3.1.0",
     "uuid": "^3.3.2",
-    "commander": "^2.16.0"
+    "commander": "^2.16.0",
+    "ws": "^6.0.0"
   },
   "devDependencies": {
     "@types/feathersjs__express": "^1.1.4",
     "@types/feathersjs__feathers": "^3.0.4",
     "@types/mathjs": "^4.4.0",
+    "@types/ws": "^5.1.2",
     "ts-node": "^7.0.0",
     "typescript": "^2.9.2"
   }
