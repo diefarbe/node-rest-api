@@ -1,5 +1,5 @@
 import EventEmitter from "events";
-import { DefaultSettings } from "modules/settings";
+import { Settings } from "modules/settings";
 import { IStateChangeRequest, Signal } from "types";
 export class KeyboardEvents {
 
@@ -7,7 +7,7 @@ export class KeyboardEvents {
     private readonly redrawListeners: VoidFunction[] = [];
 
     // add
-    public addSettingsListener(callback: (settings: DefaultSettings) => void) {
+    public addSettingsListener(callback: (settings: Settings) => void) {
         this.emitter.addListener("onSettingsChanged", callback);
     }
 
@@ -28,7 +28,7 @@ export class KeyboardEvents {
     }
 
     // remove
-    public removeSettingsListener(callback: (settings: DefaultSettings) => void) {
+    public removeSettingsListener(callback: (settings: Settings) => void) {
         this.emitter.removeListener("onSettingsChanged", callback);
     }
 
@@ -49,7 +49,7 @@ export class KeyboardEvents {
     }
 
     // emit
-    public settingsUpdated(settings: DefaultSettings) {
+    public settingsUpdated(settings: Settings) {
         this.emitter.emit("onSettingsChanged", settings);
     }
 

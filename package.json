@@ -17,7 +17,6 @@
     "@feathersjs/feathers": "3.1.7",
     "@diefarbe/lib": "^0.0.4",
     "mathjs": "5.0.4",
-    "require-path": "0.3.0",
     "systeminformation": "3.42.8",
     "tslint": "5.11.0",
     "usb-detection": "3.2.0",

@@ -1,91 +1,86 @@
 import * as fs from "fs";
 import { KeyboardEvents } from "../utils/KeyboardEvents";
 import { Logger } from "../utils/Logger";
+import { Module } from "../types";
 
-export const DefaultSettings = {
+export const DEFAULT_SETTINGS = {
     layout: "en-US",
     profile: "default",
     signals: ["cpu_utilization_max"],
 };
 
-export type DefaultSettings = typeof DefaultSettings;
+export type Settings = typeof DEFAULT_SETTINGS;
 
-export class SettingsModule {
+export class SettingsModule implements Module {
     private readonly logger = new Logger("SettingsModule");
 
     private readonly settingsJSON: string;
 
-    private settings: DefaultSettings = DefaultSettings;
+    private settings: Settings = DEFAULT_SETTINGS;
 
     constructor(private configPath: string, private events: KeyboardEvents) {
         this.logger.info("Config directory: " + configPath);
         this.settingsJSON = this.configPath + "/settings.json";
     }
 
-    public async init() {
+    public init(): void {
         this.logger.info("Loading settings...");
-        const shouldSetup = await this.shouldDoInitialSetup();
-        if (shouldSetup) {
-            this.initialSetup();
+
+        // check if we need to setup in the first place
+        const configExists = fs.existsSync(this.configPath);
+        if (!configExists) {
+            fs.mkdirSync(this.configPath);
         }
-        this.readSettings();
+
+        // read our current settings
+        let savedSettings = {};
+        try {
+            const data = fs.readFileSync(this.settingsJSON);
+            if (data !== undefined) {
+                savedSettings = JSON.parse(data.toString("utf8"));
+            }
+        } catch (e) {
+            this.logger.warn("Failed to load settings. Assuming empty/non-existent settings.");
+        }
+
+        // overwrite the defaults
+        this.settings = {
+            ...DEFAULT_SETTINGS,
+            ...savedSettings,
+        };
+        this.writeSettings(this.settings);
+
         this.logger.info("Settings load complete.");
+    }
+
+    public deinit(): void {
     }
 
     public getSettings() {
         return this.settings;
     }
 
-    public pushSetting(data: DefaultSettings) {
-        const keys: Array<keyof DefaultSettings> = Object.keys(data) as Array<keyof DefaultSettings>;
-        for (const key of keys) {
+    public pushSetting(data: Settings) {
+        for (const key of <(keyof Settings)[]>Object.keys(data)) {
             this.settings[key] = data[key];
         }
-        this.writeJsonToFile(this.settings);
+        this.writeSettings(this.settings);
     }
 
-    private shouldDoInitialSetup() {
-        return new Promise<boolean>((resolve, reject) => {
-            fs.access(this.configPath, fs.constants.F_OK, (err) => {
-                if (err) {
-                    resolve(true);
-                } else {
-                    resolve(false);
-                }
-            });
-        });
-    }
-
-    private initialSetup() {
-        return new Promise<void>((resolve, reject) => {
-            fs.mkdirSync(this.configPath);
-            this.writeJsonToFile(DefaultSettings);
-            resolve();
-        });
-    }
-
-    private readSettings() {
-        return new Promise<void>((resolve, reject) => {
-            fs.readFile(this.settingsJSON, (err, data) => {
-                if (data === undefined) { throw new Error(this.settingsJSON + " is corrupted"); }
-                const savedSettings = JSON.parse(data.toString("utf8"));
-
-                this.settings = {
-                    ...DefaultSettings,
-                    ...savedSettings,
-                };
-                this.writeJsonToFile(this.settings);
-                resolve();
-            });
-        });
-    }
-
-    private writeJsonToFile(data: DefaultSettings) {
-        fs.writeFile(this.settingsJSON, JSON.stringify(data), (err) => {
-            if (err) {
-                throw err;
+    private writeSettings(data: Settings) {
+        // remove all the default settings from it
+        let diff = <Settings>JSON.parse(JSON.stringify(data));
+        for (const key of <(keyof Settings)[]>Object.keys(data)) {
+            let setting = diff[key];
+            let def = DEFAULT_SETTINGS[key];
+            if (JSON.stringify(setting) == JSON.stringify(def)) {
+                delete diff[key];
             }
-            this.events.settingsUpdated(this.settings);
-        });
+        }
+
+        // write the diffs
+        fs.writeFileSync(this.settingsJSON, JSON.stringify(diff));
+
+        this.events.settingsUpdated(this.settings);
     }
 }

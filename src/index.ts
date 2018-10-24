@@ -11,6 +11,7 @@ import { KeyboardEvents } from "./utils/KeyboardEvents";
 import { Logger } from "./utils/Logger";
 
 import { homedir } from "os";
+import { Module } from "./types";
 
 // tslint:disable-next-line:no-var-requires
 const program = require("commander");
@@ -45,7 +46,7 @@ function configureFeathers() {
     return app;
 }
 
-async function startProgram() {
+function startProgram() {
     const logger = new Logger("index.ts");
 
     logger.info("Hello.");
@@ -61,12 +62,13 @@ async function startProgram() {
     const indicator = new IndicatorModule(events);
     const profile = new ProfileModule(program.config, events);
 
-    for (const module of [keyboard, signals, indicator, profile]) {
+    const modules: Module[] = [keyboard, signals, indicator, profile];
+    for (const module of modules) {
         module.init();
     }
 
     // Now that all our modules are up and ready to go, startup settings
-    await settings.init();
+    settings.init();
 
     app.use("settings", SettingsEndpoint.init(settings));
     app.use("profiles", ProfileEndpoint.init(profile, keyboard));

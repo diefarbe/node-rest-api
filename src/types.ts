@@ -136,3 +136,8 @@ export interface IProfile {
 export interface ISignalProfile {
     enabledSignals: string[] | string;
 }
+
+export interface Module {
+    init(): void;
+    deinit(): void;
+}

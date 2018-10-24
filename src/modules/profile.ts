@@ -1,19 +1,19 @@
 import * as fs from "fs";
-import { IProfile, IStateChangeRequest } from "../types";
+import { IProfile, IStateChangeRequest, Module } from "../types";
 import { KeyboardEvents } from "../utils/KeyboardEvents";
 import { Logger } from "../utils/Logger";
-import { DefaultSettings } from "./settings";
+import { Settings } from "./settings";
 
 /**
  * The Profile module, in charge of keeping the profile set on an attached keyboard
- * 
+ *
  * Events we listen to include:
- * 
+ *
  * onSettingsChanged: We load a list of profiles into memory
  * onInitialSetupComplete: We create a profile directory
  * onProfileTickRequest: We set the desired profile
  */
-export class ProfileModule {
+export class ProfileModule implements Module {
 
     private readonly logger = new Logger("ProfileModule");
 
@@ -29,12 +29,6 @@ export class ProfileModule {
     public init(): void {
         this.keyboardEvents.addSettingsListener(this.onSettingsChanged);
         this.keyboardEvents.addRedrawListener(this.onRedrawRequested, 0);
-
-        try {
-            fs.mkdirSync(this.profileDirectory);
-        } catch {
-            // stab
-        }
     }
 
     public deinit(): void {
@@ -76,37 +70,40 @@ export class ProfileModule {
         return { id };
     }
 
-    private onSettingsChanged = (settings: DefaultSettings) => {
+    private onSettingsChanged = (settings: Settings) => {
         this.currentProfileUUID = settings.profile;
         this.currentLayout = settings.layout;
         this.profiles = {};
-        this.loadProfilesFromPath(this.profileDirectory);
+        this.loadProfiles();
 
-        this.profiles.default = require("../../assets/profiles/dim.json");
-    }
+        this.profiles.default = require("../../profiles/dim.json");
+    };
 
     private onRedrawRequested = () => {
         const ourProfile = this.profiles[this.currentProfileUUID];
         const changes = ourProfile.defaultAnimations[this.currentLayout];
         this.keyboardEvents.requestStateChange(changes);
-    }
+    };
 
-    private loadProfilesFromPath(configDir: string) {
-        const paths = fs.readdirSync(configDir);
-        for (const path of paths) {
-            if (path.endsWith(".json")) {
-                this.logger.info("Found profile:", this.profileDirectory + "/" + path);
-                this.loadProfileIntoMemory(this.profileDirectory + "/" + path);
+    private loadProfiles() {
+        // check if we need to setup in the first place
+        const configExists = fs.existsSync(this.profileDirectory);
+        if (!configExists) {
+            fs.mkdirSync(this.profileDirectory);
+        }
+        
+        const paths = fs.readdirSync(this.profileDirectory);
+        for (const file of paths) {
+            if (file.endsWith(".json")) {
+                const path = this.profileDirectory + "/" + file; 
+                this.logger.info("Found profile:", path);
+
+                const data = fs.readFileSync(path);
+                const profile = JSON.parse(data.toString("utf8"));
+                if (profile.hasOwnProperty("uuid")) {
+                    this.profiles[profile.uuid] = profile;
+                }
             }
         }
-    }
-
-    private loadProfileIntoMemory(path: string) {
-        fs.readFile(path, (err, data) => {
-            const profile = JSON.parse(data.toString("utf8"));
-            if (profile.hasOwnProperty("uuid")) {
-                this.profiles[profile.uuid] = profile;
-            }
-        });
     }
 }

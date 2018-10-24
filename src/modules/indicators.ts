@@ -2,7 +2,7 @@
 import {
     IIndicator,
     IStateChangeRequest,
-    IStateInfo,
+    IStateInfo, Module,
     Signal,
 } from "../types";
 import { Animations } from "../utils/Animations";
@@ -10,7 +10,7 @@ import { assertNever } from "../utils/Asserts";
 import { KeyboardEvents } from "../utils/KeyboardEvents";
 import { Logger } from "../utils/Logger";
 
-export class IndicatorModule {
+export class IndicatorModule implements Module {
 
     private readonly logger = new Logger("KeyboardModule");
 
@@ -170,7 +170,7 @@ export class IndicatorModule {
             }
         }
         this.keyboardEvents.requestStateChange(stateChanges);
-    }
+    };
 
     private onSignalDisabled = (signal: string) => {
         this.logger.info("Disabled:" + signal);
@@ -179,11 +179,11 @@ export class IndicatorModule {
                 delete this.changes[indicator.uuid];
             }
         }
-    }
+    };
 
     private onSettingsChanged = (settings: any) => {
         this.layout = settings.layout;
-    }
+    };
 
     /**
      * Called when the signal has a different value than before.

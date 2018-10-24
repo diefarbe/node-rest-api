@@ -1,12 +1,13 @@
 import {
     IPluginSignal,
-    ISignalProviderPlugin,
+    ISignalProviderPlugin, Module,
     Signal,
 } from "../types";
 import { assertNever } from "../utils/Asserts";
 import { KeyboardEvents } from "../utils/KeyboardEvents";
 import { Logger } from "../utils/Logger";
-import { DefaultSettings } from "./settings";
+import { Settings } from "./settings";
+import * as fs from "fs";
 
 interface IEnabledSignal {
     pluginSignal: IPluginSignal;
@@ -15,7 +16,7 @@ interface IEnabledSignal {
     name: string;
 }
 
-export class SignalsModule {
+export class SignalsModule implements Module {
     private readonly logger = new Logger("SignalsModule");
 
     private signalPlugins: ISignalProviderPlugin[] = [];
@@ -29,25 +30,13 @@ export class SignalsModule {
 
     public init() {
         this.logger.info("Initializing signals.");
-        const requirePath = require("require-path");
-
-        requirePath({
-            include: ["*.js", "*/index.js"],
-            path: "plugins",
-        })
-            .then((modules: { [key: string]: ISignalProviderPlugin }) => {
-                for (const key in modules) {
-                    if (modules.hasOwnProperty(key)) {
-                        this.logger.info("Found signal provider plugin:", key);
-                        const plugin = modules[key];
-                        this.loadPlugin(plugin);
-                    }
-                }
-
-            })
-            .catch((errors: any) => {
-                throw errors;
-            });
+        
+        const pluginPaths = fs.readdirSync("plugins");
+        for (const pluginPath of pluginPaths) {
+            const pluginSource = fs.readFileSync("plugins/" + pluginPath).toString("utf8");
+            const plugin = <ISignalProviderPlugin>eval(pluginSource);
+            this.loadPlugin(plugin);
+        }
 
         this.keyboardEvents.addSettingsListener(this.onSettingsChanged);
     }
@@ -90,9 +79,9 @@ export class SignalsModule {
         this.signalPlugins.push(plugin);
     }
 
-    private onSettingsChanged = (settings: DefaultSettings) => {
+    private onSettingsChanged = (settings: Settings) => {
         this.setEnabledSignals(settings.signals);
-    }
+    };
 
     private disableSignal(signal: IPluginSignal) {
         for (let i = 0; i < this.enabledSignalPlugins.length; i++) {
