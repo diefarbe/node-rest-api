@@ -11,7 +11,7 @@ import { KeyboardEvents } from "./utils/KeyboardEvents";
 import { Logger } from "./utils/Logger";
 
 import { homedir } from "os";
-import { Module } from "./types";
+import { IModule } from "./types";
 
 // tslint:disable-next-line:no-var-requires
 const program = require("commander");
@@ -62,7 +62,7 @@ function startProgram() {
     const indicator = new IndicatorModule(events);
     const profile = new ProfileModule(program.config, events);
 
-    const modules: Module[] = [keyboard, signals, indicator, profile];
+    const modules: IModule[] = [keyboard, signals, indicator, profile];
     for (const module of modules) {
         module.init();
     }

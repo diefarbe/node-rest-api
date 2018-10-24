@@ -20,6 +20,7 @@
             false
         ],
         "no-trailing-whitespace": false,
+        "semicolon": [true, "always", "ignore-bound-class-methods"],
         "eofline": false
     },
     "rulesDirectory": []

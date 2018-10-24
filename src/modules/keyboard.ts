@@ -1,6 +1,6 @@
 import { ChannelState, IKeyMapCulture, Keyboard, KeyInfo, KeyModel, KeyState } from "@diefarbe/lib";
 import usbDetect from "usb-detection";
-import { IChannelInfo, IStateChangeRequest, IStateInfo, Module } from "../types";
+import { IChannelInfo, IModule, IStateChangeRequest, IStateInfo } from "../types";
 import { KeyboardEvents } from "../utils/KeyboardEvents";
 import { Logger } from "../utils/Logger";
 import { State } from "../utils/State";
@@ -21,7 +21,7 @@ import { Settings } from "./settings";
  * keyboard once 1000ms passes, or the user has requested an immediate sync.
  * 
  */
-export class KeyboardModule implements Module {
+export class KeyboardModule implements IModule {
 
     private readonly logger = new Logger("KeyboardModule");
     private readonly hardwareKeyboard: Keyboard;

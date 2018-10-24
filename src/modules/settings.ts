@@ -1,7 +1,7 @@
 import * as fs from "fs";
+import { IModule } from "../types";
 import { KeyboardEvents } from "../utils/KeyboardEvents";
 import { Logger } from "../utils/Logger";
-import { Module } from "../types";
 
 export const DEFAULT_SETTINGS = {
     layout: "en-US",
@@ -11,7 +11,7 @@ export const DEFAULT_SETTINGS = {
 
 export type Settings = typeof DEFAULT_SETTINGS;
 
-export class SettingsModule implements Module {
+export class SettingsModule implements IModule {
     private readonly logger = new Logger("SettingsModule");
 
     private readonly settingsJSON: string;
@@ -54,6 +54,7 @@ export class SettingsModule implements Module {
     }
 
     public deinit(): void {
+        // no-op
     }
 
     public getSettings() {
@@ -61,7 +62,7 @@ export class SettingsModule implements Module {
     }
 
     public pushSetting(data: Settings) {
-        for (const key of <(keyof Settings)[]>Object.keys(data)) {
+        for (const key of Object.keys(data) as Array<keyof Settings>) {
             this.settings[key] = data[key];
         }
         this.writeSettings(this.settings);
@@ -69,11 +70,11 @@ export class SettingsModule implements Module {
 
     private writeSettings(data: Settings) {
         // remove all the default settings from it
-        let diff = <Settings>JSON.parse(JSON.stringify(data));
-        for (const key of <(keyof Settings)[]>Object.keys(data)) {
-            let setting = diff[key];
-            let def = DEFAULT_SETTINGS[key];
-            if (JSON.stringify(setting) == JSON.stringify(def)) {
+        const diff = JSON.parse(JSON.stringify(data)) as Settings;
+        for (const key of Object.keys(data) as Array<keyof Settings>) {
+            const setting = diff[key];
+            const def = DEFAULT_SETTINGS[key];
+            if (JSON.stringify(setting) === JSON.stringify(def)) {
                 delete diff[key];
             }
         }

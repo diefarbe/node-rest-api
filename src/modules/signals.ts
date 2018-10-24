@@ -1,13 +1,14 @@
+import * as fs from "fs";
 import {
+    IModule,
     IPluginSignal,
-    ISignalProviderPlugin, Module,
+    ISignalProviderPlugin,
     Signal,
 } from "../types";
 import { assertNever } from "../utils/Asserts";
 import { KeyboardEvents } from "../utils/KeyboardEvents";
 import { Logger } from "../utils/Logger";
 import { Settings } from "./settings";
-import * as fs from "fs";
 
 interface IEnabledSignal {
     pluginSignal: IPluginSignal;
@@ -16,7 +17,7 @@ interface IEnabledSignal {
     name: string;
 }
 
-export class SignalsModule implements Module {
+export class SignalsModule implements IModule {
     private readonly logger = new Logger("SignalsModule");
 
     private signalPlugins: ISignalProviderPlugin[] = [];
@@ -30,11 +31,12 @@ export class SignalsModule implements Module {
 
     public init() {
         this.logger.info("Initializing signals.");
-        
+
         const pluginPaths = fs.readdirSync("plugins");
         for (const pluginPath of pluginPaths) {
             const pluginSource = fs.readFileSync("plugins/" + pluginPath).toString("utf8");
-            const plugin = <ISignalProviderPlugin>eval(pluginSource);
+            // tslint:disable-next-line:no-eval
+            const plugin = eval(pluginSource) as ISignalProviderPlugin;
             this.loadPlugin(plugin);
         }
 

@@ -137,7 +137,7 @@ export interface ISignalProfile {
     enabledSignals: string[] | string;
 }
 
-export interface Module {
+export interface IModule {
     init(): void;
     deinit(): void;
 }

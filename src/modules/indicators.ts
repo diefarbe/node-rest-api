@@ -1,8 +1,8 @@
-
 import {
     IIndicator,
+    IModule,
     IStateChangeRequest,
-    IStateInfo, Module,
+    IStateInfo,
     Signal,
 } from "../types";
 import { Animations } from "../utils/Animations";
@@ -10,7 +10,7 @@ import { assertNever } from "../utils/Asserts";
 import { KeyboardEvents } from "../utils/KeyboardEvents";
 import { Logger } from "../utils/Logger";
 
-export class IndicatorModule implements Module {
+export class IndicatorModule implements IModule {
 
     private readonly logger = new Logger("KeyboardModule");
 

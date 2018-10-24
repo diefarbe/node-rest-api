@@ -1,5 +1,5 @@
 import * as fs from "fs";
-import { IProfile, IStateChangeRequest, Module } from "../types";
+import { IModule, IProfile, IStateChangeRequest } from "../types";
 import { KeyboardEvents } from "../utils/KeyboardEvents";
 import { Logger } from "../utils/Logger";
 import { Settings } from "./settings";
@@ -13,7 +13,7 @@ import { Settings } from "./settings";
  * onInitialSetupComplete: We create a profile directory
  * onProfileTickRequest: We set the desired profile
  */
-export class ProfileModule implements Module {
+export class ProfileModule implements IModule {
 
     private readonly logger = new Logger("ProfileModule");
 
