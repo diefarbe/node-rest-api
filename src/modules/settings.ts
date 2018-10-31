@@ -80,7 +80,7 @@ export class SettingsModule implements IModule {
         }
 
         // write the diffs
-        fs.writeFileSync(this.settingsJSON, JSON.stringify(diff));
+        fs.writeFileSync(this.settingsJSON, JSON.stringify(diff, null, 4));
 
         this.events.settingsUpdated(this.settings);
     }
