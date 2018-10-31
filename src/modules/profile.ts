@@ -90,6 +90,12 @@ export class ProfileModule implements IModule {
 
     private loadProfiles() {
         this.loadProfilesFrom("profiles");
+        
+        // check if we need to setup in the first place
+        const configExists = fs.existsSync(this.profileDirectory);
+        if (!configExists) {
+            fs.mkdirSync(this.profileDirectory);
+        }
         this.loadProfilesFrom(this.profileDirectory);
     }
     
