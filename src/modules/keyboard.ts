@@ -11,7 +11,7 @@ import { Settings } from "./settings";
  * 
  * This module is in charge of holding, reporting, and changing the keyboard state.
  * 
- * The keyboard listens to three different events from our keyboard events. These are:
+ * The keyboard listens to two different events from our keyboard events. These are:
  * 
  * onSettingsChanged - Since the keyboard does not hold the layout, we need to know when the user
  * changes the keyboard layout so we can adjust our states. 
@@ -133,7 +133,7 @@ export class KeyboardModule implements IModule {
             // instead of waiting for the next sync, sync the changes now
             this.sync();
         }
-    }
+    };
 
     /**
      * Returns the wanted states of all keys.

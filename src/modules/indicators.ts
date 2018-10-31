@@ -9,6 +9,7 @@ import { Animations } from "../utils/Animations";
 import { assertNever } from "../utils/Asserts";
 import { KeyboardEvents } from "../utils/KeyboardEvents";
 import { Logger } from "../utils/Logger";
+import { Settings } from "./settings";
 
 export class IndicatorModule implements IModule {
 
@@ -181,7 +182,7 @@ export class IndicatorModule implements IModule {
         }
     };
 
-    private onSettingsChanged = (settings: any) => {
+    private onSettingsChanged = (settings: Settings) => {
         this.layout = settings.layout;
     };
 

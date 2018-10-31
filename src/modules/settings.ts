@@ -3,13 +3,17 @@ import { IModule } from "../types";
 import { KeyboardEvents } from "../utils/KeyboardEvents";
 import { Logger } from "../utils/Logger";
 
-export const DEFAULT_SETTINGS = {
+export const DEFAULT_SETTINGS: Settings = {
     layout: "en-US",
     profile: "bc7f63d06f675130ca6e722c6cd056c588272b2966d6e2952702925aa2bd44ee",
     signals: [],
 };
 
-export type Settings = typeof DEFAULT_SETTINGS;
+export type Settings = {
+    layout: string,
+    profile: string,
+    signals: Array<string>,
+};
 
 export class SettingsModule implements IModule {
     private readonly logger = new Logger("SettingsModule");
