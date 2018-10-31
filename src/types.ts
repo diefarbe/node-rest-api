@@ -130,7 +130,6 @@ export interface IProfile {
     defaultAnimations: {
         [layout: string]: IStateChangeRequest[];
     };
-    uuid: string;
 }
 
 export interface ISignalProfile {

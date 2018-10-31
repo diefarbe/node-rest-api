@@ -5,8 +5,8 @@ import { Logger } from "../utils/Logger";
 
 export const DEFAULT_SETTINGS = {
     layout: "en-US",
-    profile: "default",
-    signals: ["cpu_utilization_max"],
+    profile: "bc7f63d06f675130ca6e722c6cd056c588272b2966d6e2952702925aa2bd44ee",
+    signals: [],
 };
 
 export type Settings = typeof DEFAULT_SETTINGS;

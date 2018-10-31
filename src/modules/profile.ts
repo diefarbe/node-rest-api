@@ -1,8 +1,10 @@
 import * as fs from "fs";
-import { IModule, IProfile, IStateChangeRequest } from "../types";
+import { IModule, IProfile, ISignalProviderPlugin, IStateChangeRequest } from "../types";
 import { KeyboardEvents } from "../utils/KeyboardEvents";
 import { Logger } from "../utils/Logger";
 import { Settings } from "./settings";
+
+import * as crypto from "crypto";
 
 /**
  * The Profile module, in charge of keeping the profile set on an attached keyboard
@@ -19,7 +21,7 @@ export class ProfileModule implements IModule {
 
     private profiles: { [key: string]: IProfile } = {};
     private readonly profileDirectory: string;
-    private currentProfileUUID: string = "default";
+    private currentProfileID: string = "default";
     private currentLayout: string = "en-US";
 
     constructor(configPath: string, private keyboardEvents: KeyboardEvents) {
@@ -71,39 +73,46 @@ export class ProfileModule implements IModule {
     }
 
     private onSettingsChanged = (settings: Settings) => {
-        this.currentProfileUUID = settings.profile;
+        this.currentProfileID = settings.profile;
         this.currentLayout = settings.layout;
         this.profiles = {};
         this.loadProfiles();
-
-        this.profiles.default = require("../../profiles/dim.json");
     };
 
     private onRedrawRequested = () => {
-        const ourProfile = this.profiles[this.currentProfileUUID];
+        if (!this.profiles.hasOwnProperty(this.currentProfileID)) {
+            throw new Error("Could not find profile with ID: " + this.currentProfileID);
+        }
+        const ourProfile = this.profiles[this.currentProfileID];
         const changes = ourProfile.defaultAnimations[this.currentLayout];
         this.keyboardEvents.requestStateChange(changes);
     };
 
     private loadProfiles() {
-        // check if we need to setup in the first place
-        const configExists = fs.existsSync(this.profileDirectory);
-        if (!configExists) {
-            fs.mkdirSync(this.profileDirectory);
-        }
-        
-        const paths = fs.readdirSync(this.profileDirectory);
+        this.loadProfilesFrom("profiles");
+        this.loadProfilesFrom(this.profileDirectory);
+    }
+    
+    private loadProfilesFrom(directory: string): void {
+        const paths = fs.readdirSync(directory);
         for (const file of paths) {
             if (file.endsWith(".json")) {
-                const path = this.profileDirectory + "/" + file; 
-                this.logger.info("Found profile:", path);
+                const path = directory + "/" + file;
 
                 const data = fs.readFileSync(path);
                 const profile = JSON.parse(data.toString("utf8"));
-                if (profile.hasOwnProperty("uuid")) {
-                    this.profiles[profile.uuid] = profile;
-                }
+
+                this.loadProfile(profile);
             }
         }
+    }
+    
+    private loadProfile(profile: IProfile): void {
+        const sha256 = crypto.createHash("sha256");
+        sha256.update(JSON.stringify(profile));
+        const hash = sha256.digest("hex");
+        this.profiles[hash] = profile;
+
+        this.logger.info("Loaded profile " + profile.name + ": " + hash);
     }
 }
